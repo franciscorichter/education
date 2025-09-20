@@ -1,0 +1,88 @@
+{
+  "time": "2025-09-20T14:19:29.983673",
+  "em": {
+    "ok": true,
+    "rows": 105242,
+    "cols": [
+      "ID_ESTUDIANTE",
+      "cod_mod7",
+      "medida500_L",
+      "medida500_M"
+    ],
+    "file": "/Users/pancho/Library/CloudStorage/Dropbox/Pancho/25 - CSG/04 - Education/02 - code/shiny/enla_network_app/data_prepared/em_alumnos.csv.gz"
+  },
+  "questionnaires": [
+    {
+      "ok": true,
+      "base": "ENLA2024_6Pestudiante_EBRD1",
+      "rows": 102431,
+      "item_cols": 169,
+      "keys": [
+        "ID_ESTUDIANTE",
+        "cod_mod7"
+      ],
+      "file": "/Users/pancho/Library/CloudStorage/Dropbox/Pancho/25 - CSG/04 - Education/02 - code/shiny/enla_network_app/data_prepared/bd_ENLA2024_6Pestudiante_EBRD1.csv.gz"
+    },
+    {
+      "ok": true,
+      "base": "ENLA2024_6Pdirector_EBRF1",
+      "rows": 2222,
+      "item_cols": 137,
+      "keys": [
+        "cod_mod7"
+      ],
+      "file": "/Users/pancho/Library/CloudStorage/Dropbox/Pancho/25 - CSG/04 - Education/02 - code/shiny/enla_network_app/data_prepared/bd_ENLA2024_6Pdirector_EBRF1.csv.gz"
+    },
+    {
+      "ok": true,
+      "base": "ENLA2024_6PdocenteTutor_EBR",
+      "rows": 5800,
+      "item_cols": 125,
+      "keys": [
+        "cod_mod7"
+      ],
+      "file": "/Users/pancho/Library/CloudStorage/Dropbox/Pancho/25 - CSG/04 - Education/02 - code/shiny/enla_network_app/data_prepared/bd_ENLA2024_6PdocenteTutor_EBR.csv.gz"
+    },
+    {
+      "ok": true,
+      "base": "ENLA2024_6PdocenteCOM_EBR",
+      "rows": 5809,
+      "item_cols": 130,
+      "keys": [
+        "cod_mod7"
+      ],
+      "file": "/Users/pancho/Library/CloudStorage/Dropbox/Pancho/25 - CSG/04 - Education/02 - code/shiny/enla_network_app/data_prepared/bd_ENLA2024_6PdocenteCOM_EBR.csv.gz"
+    },
+    {
+      "ok": true,
+      "base": "ENLA2024_6Pdirector_EBRF2",
+      "rows": 2199,
+      "item_cols": 164,
+      "keys": [
+        "cod_mod7"
+      ],
+      "file": "/Users/pancho/Library/CloudStorage/Dropbox/Pancho/25 - CSG/04 - Education/02 - code/shiny/enla_network_app/data_prepared/bd_ENLA2024_6Pdirector_EBRF2.csv.gz"
+    },
+    {
+      "ok": true,
+      "base": "ENLA2024_6PdocenteMAT_EBR",
+      "rows": 5735,
+      "item_cols": 129,
+      "keys": [
+        "cod_mod7"
+      ],
+      "file": "/Users/pancho/Library/CloudStorage/Dropbox/Pancho/25 - CSG/04 - Education/02 - code/shiny/enla_network_app/data_prepared/bd_ENLA2024_6PdocenteMAT_EBR.csv.gz"
+    },
+    {
+      "ok": true,
+      "base": "ENLA2024_6Pfamilia_EBR",
+      "rows": 95977,
+      "item_cols": 155,
+      "keys": [
+        "ID_ESTUDIANTE",
+        "cod_mod7"
+      ],
+      "file": "/Users/pancho/Library/CloudStorage/Dropbox/Pancho/25 - CSG/04 - Education/02 - code/shiny/enla_network_app/data_prepared/bd_ENLA2024_6Pfamilia_EBR.csv.gz"
+    }
+  ]
+}
