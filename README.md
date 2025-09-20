@@ -40,12 +40,14 @@ The ENLA Item Network platform enables researchers to:
 - **School code normalization**: Standardizes 7-digit school identifiers
 - **Multi-level caching**: Efficient data loading with automatic cache invalidation
 - **Quality filtering**: Removes low-variation and high-missing-data columns
+- **Robust error handling**: Graceful fallbacks for missing/corrupted data
+- **Data validation**: Comprehensive checks for data quality and integration
 
-### **Dictionary Integration**
-- **Excel dictionary parsing**: Extracts question metadata from Excel sheets
-- **Heuristic column detection**: Intelligent identification of question text, descriptions, and response options
-- **Code normalization**: Standardizes variable naming conventions
-- **Interactive questionnaire browser**: Detailed view of all questions and sub-items
+### **Smart Integration System**
+- **Dual join key strategy**: Uses student IDs for individual-level data, school codes for aggregate data
+- **Quality-based integration**: Only integrates when match rate exceeds 10%
+- **Real-time feedback**: Shows integration status and success/failure indicators
+- **Data type consistency**: Ensures proper data types for successful joins
 
 ### **Visualization & UI**
 - **Interactive network graphs**: Color-coded nodes by construct group with variable edge thickness
@@ -80,6 +82,7 @@ graph LR
 - **Memory optimization**: Automatic filtering of low-quality columns
 - **Robust error handling**: Graceful fallbacks for missing/corrupted data
 - **Source tracking**: Maintains data lineage and modification timestamps
+- **Quality-based integration**: Smart data matching with success rate validation
 
 ## 📊 Research Applications
 
@@ -185,22 +188,25 @@ Choose from available ENLA questionnaires in the tab selector:
 ## 🔧 Technical Details
 
 ### **Core Functions**
-- `build_cache_for()`: Processes individual Excel files into cache format
-- `get_student_dict()`: Extracts question dictionaries from Excel sheets
-- `aggregate_group()`: Implements various aggregation methods (mean, median, z-score, PCA)
-- `plot_data()`: Generates network data for visualization
+- `build_cache_for()`: Processes individual Excel files into cache format with improved error handling
+- `find_item_columns()`: Robust detection of questionnaire items with validation
+- `compute_aggregations()`: Enhanced aggregation methods with quality checks
+- `load_em_perf()`: Improved EM performance data loading with fallback mechanisms
+- **Quality Assessment**: Comprehensive data integration validation and reporting
 
 ### **Performance Optimizations**
 - **Lazy loading**: Only processes data when needed
 - **Efficient correlation computation**: Uses pairwise complete observations
 - **Memory management**: Automatic quality filtering and caching
 - **Fast rendering**: Pre-computed layouts for network visualization
+- **Smart integration**: Quality-based performance data integration
 
 ### **Quality Controls**
 - **Column validation**: Automatic identification of questionnaire items
 - **Response normalization**: Converts A-E responses to numeric values
 - **Missing data handling**: Robust NA value processing
 - **Format standardization**: Consistent column naming across files
+- **Integration validation**: Match rate checking before data integration
 
 ## 🤝 Contributing
 
@@ -239,12 +245,15 @@ For research use, please ensure compliance with data usage agreements for the EN
 2. **Memory issues**: Large datasets may require more RAM
 3. **Package dependencies**: Install all required R packages
 4. **Cache problems**: Delete RDS files in app directory to force fresh processing
+5. **Integration failures**: Check data quality assessment in EDA tab for detailed diagnostics
+6. **Performance node issues**: Verify match rates are above 10% for successful integration
 
 ### **Data Quality Checks**
 - **Column detection**: Application automatically identifies pXX item columns
 - **Response validation**: Converts A-E responses to numeric values
 - **Missing data analysis**: Reports percentage of missing values
 - **Variation assessment**: Identifies columns with insufficient variation
+- **Integration validation**: Checks match rates before attempting performance integration
 
 ---
 
