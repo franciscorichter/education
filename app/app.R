@@ -63,48 +63,111 @@ norm_cod_mod7 <- function(x) {
 # Load EM performance dataset (students) once
 load_em_perf <- function() {
   em_path <- file.path(xlsx_dir, "EM_6P_2024_alumnos_innominados.xlsx")
+  cat(sprintf("DEBUG: Looking for EM file at: %s\n", em_path))
+
   # Prefer prepared fast file if available
   prep_path <- file.path(app_dir, "data_prepared", "em_alumnos.csv.gz")
   if (file.exists(prep_path)) {
-    df <- tryCatch(readr::read_csv(prep_path, show_col_types = FALSE), error = function(e) NULL)
-    if (!is.null(df)) return(df)
+    cat("DEBUG: Using prepared EM data from CSV\n")
+    df <- tryCatch(readr::read_csv(prep_path, show_col_types = FALSE), error = function(e) {
+      cat(sprintf("DEBUG: Error reading prepared EM data: %s\n", e$message))
+      NULL
+    })
+    if (!is.null(df)) {
+      cat(sprintf("DEBUG: Loaded %d rows from prepared EM data\n", nrow(df)))
+      return(df)
+    }
   }
-  if (!file.exists(em_path)) return(NULL)
+
+  if (!file.exists(em_path)) {
+    cat("DEBUG: EM Excel file not found\n")
+    return(NULL)
+  }
+
   # Fast cache path keyed by source mtime
   cache_path <- file.path(cache_dir, "EM_6P_2024_alumnos_innominados.rds")
   src_mtime <- tryCatch(file.info(em_path)$mtime, error = function(e) NA)
+
   if (file.exists(cache_path)) {
     obj <- tryCatch(readRDS(cache_path), error = function(e) NULL)
     if (!is.null(obj) && identical(obj$src_mtime, src_mtime)) {
       # Ensure cod_mod7 normalized when reading from cache
       if ("cod_mod7" %in% names(obj$df)) obj$df$cod_mod7 <- norm_cod_mod7(obj$df$cod_mod7)
+      cat(sprintf("DEBUG: Loaded %d rows from EM cache\n", nrow(obj$df)))
       return(obj$df)
     }
   }
+
   # Read BD sheet explicitly
   sh <- tryCatch(readxl::excel_sheets(em_path), error = function(e) character())
   sheet_to_read <- if ("BD" %in% sh) "BD" else if (length(sh) > 0) sh[1] else 1
-  df <- tryCatch(readxl::read_excel(em_path, sheet = sheet_to_read), error = function(e) NULL)
-  if (is.null(df)) return(NULL)
+  cat(sprintf("DEBUG: Reading EM data from sheet: %s\n", sheet_to_read))
+
+  df <- tryCatch(readxl::read_excel(em_path, sheet = sheet_to_read), error = function(e) {
+    cat(sprintf("DEBUG: Error reading EM Excel: %s\n", e$message))
+    NULL
+  })
+
+  if (is.null(df)) {
+    cat("DEBUG: Failed to read EM data\n")
+    return(NULL)
+  }
+
   df <- tibble::as_tibble(df)
+  cat(sprintf("DEBUG: Raw EM data has %d rows, %d columns\n", nrow(df), ncol(df)))
+
   # Standardize key column names
   nml <- tolower(names(df))
   names(df)[nml == "id_estudiante"] <- "ID_ESTUDIANTE"
   names(df)[nml == "cod_mod7"] <- "cod_mod7"
   names(df)[nml == "medida500_l"] <- "medida500_L"
   names(df)[nml == "medida500_m"] <- "medida500_M"
+
   # Keep only relevant columns
   keep <- intersect(c("ID_ESTUDIANTE","cod_mod7","medida500_L","medida500_M"), names(df))
-  if (length(keep) == 0) return(NULL)
+  cat(sprintf("DEBUG: Keeping columns: %s\n", paste(keep, collapse=", ")))
+
+  if (length(keep) == 0) {
+    cat("DEBUG: No relevant columns found in EM data\n")
+    return(NULL)
+  }
+
   df <- dplyr::select(df, dplyr::all_of(keep))
+
   # Coerce scores to numeric
-  if ("medida500_L" %in% names(df)) df$medida500_L <- suppressWarnings(as.numeric(df$medida500_L))
-  if ("medida500_M" %in% names(df)) df$medida500_M <- suppressWarnings(as.numeric(df$medida500_M))
+  if ("medida500_L" %in% names(df)) {
+    df$medida500_L <- suppressWarnings(as.numeric(df$medida500_L))
+    cat(sprintf("DEBUG: L scores - %d non-NA values\n", sum(!is.na(df$medida500_L))))
+  }
+  if ("medida500_M" %in% names(df)) {
+    df$medida500_M <- suppressWarnings(as.numeric(df$medida500_M))
+    cat(sprintf("DEBUG: M scores - %d non-NA values\n", sum(!is.na(df$medida500_M))))
+  }
+
   # Save to fast cache with mtime
   tryCatch(saveRDS(list(df = df, src_mtime = src_mtime), cache_path), error = function(e) NULL)
+
+  cat(sprintf("DEBUG: Final EM data has %d rows\n", nrow(df)))
   df
 }
 em_perf <- load_em_perf()
+
+# Load EM performance dataset (students) once
+load_em_data <- function() {
+  em_path <- file.path(app_dir, "EM_6P_2024_alumnos_innominados.rds")
+  if (!file.exists(em_path)) return(NULL)
+
+  df <- tryCatch(readRDS(em_path), error = function(e) NULL)
+  if (is.null(df)) return(NULL)
+
+  # If it's cached with mtime structure, extract df
+  if (is.list(df) && "df" %in% names(df)) {
+    df <- df$df
+  }
+
+  df
+}
+em_data <- load_em_data()
 
 # Generic dictionary reader from the 2nd sheet of any ENLA workbook
 get_any_dict <- function(xlsx_path) {
@@ -625,9 +688,13 @@ server <- function(input, output, session) {
 
     # ---- Integrate EM performance L/M as extra nodes (optional) ----
     if (isTRUE(isolate(input$add_perf_nodes))) {
+      cat("DEBUG: Performance integration triggered\n")
       # Decide join key based on questionnaire type
       join_key <- ifelse(grepl("(?i)estudiante|familia", basename(xlsx_path)), "ID_ESTUDIANTE", "cod_mod7")
+      cat(sprintf("DEBUG: Using join key: %s\n", join_key))
+
       if (!is.null(em_perf) && join_key %in% names(cache$keys) && join_key %in% names(em_perf)) {
+        cat("DEBUG: Performance data and join keys available\n")
         df_join <- dplyr::bind_cols(cache$keys, X)
         # Coerce join keys to character on both sides to maximize match rate
         df_join[[join_key]] <- as.character(df_join[[join_key]])
@@ -638,15 +705,38 @@ server <- function(input, output, session) {
           df_join[[join_key]] <- norm_cod_mod7(df_join[[join_key]])
           em2[[join_key]] <- norm_cod_mod7(em2[[join_key]])
         }
+
+        # Debug: Check join key values before join
+        cat(sprintf("DEBUG: Questionnaires have %d unique %s values\n", length(unique(df_join[[join_key]])), join_key))
+        cat(sprintf("DEBUG: EM data has %d unique %s values\n", length(unique(em2[[join_key]])), join_key))
+        cat(sprintf("DEBUG: EM data has %d rows with L scores, %d with M scores\n",
+                   sum(!is.na(em2$medida500_L)), sum(!is.na(em2$medida500_M))))
+
         df_join <- dplyr::left_join(df_join, em2, by = join_key)
+
+        # Debug: Check join results
+        cat(sprintf("DEBUG: After join, L column has %d non-NA values, M has %d\n",
+                   sum(!is.na(df_join$medida500_L)), sum(!is.na(df_join$medida500_M))))
+
         # Append L and M (rename to simple codes 'L' and 'M')
         if ("medida500_L" %in% names(df_join)) {
           X$L <- suppressWarnings(as.numeric(df_join$medida500_L))
+          cat(sprintf("DEBUG: Added L column with %d non-NA values\n", sum(!is.na(X$L))))
         }
         if ("medida500_M" %in% names(df_join)) {
           X$M <- suppressWarnings(as.numeric(df_join$medida500_M))
+          cat(sprintf("DEBUG: Added M column with %d non-NA values\n", sum(!is.na(X$M))))
+        }
+      } else {
+        cat("DEBUG: Performance integration skipped - missing data or join keys\n")
+        cat(sprintf("DEBUG: em_perf is null: %s\n", is.null(em_perf)))
+        if (!is.null(em_perf)) {
+          cat(sprintf("DEBUG: join_key in cache$keys: %s\n", join_key %in% names(cache$keys)))
+          cat(sprintf("DEBUG: join_key in em_perf: %s\n", join_key %in% names(em_perf)))
         }
       }
+    } else {
+      cat("DEBUG: Performance integration not requested\n")
     }
 
     # Drop low-quality columns
@@ -696,6 +786,12 @@ server <- function(input, output, session) {
     # Show quick hint if L/M are present
     hasL <- "L" %in% igraph::V(G)$name
     hasM <- "M" %in% igraph::V(G)$name
+
+    # Debug: Check all node names
+    node_names <- igraph::V(G)$name
+    cat("DEBUG: Network nodes:", paste(node_names, collapse=", "), "\n")
+    cat(sprintf("DEBUG: Has L node: %s, Has M node: %s\n", hasL, hasM))
+
     suffix <- paste0("  |  L:", if (hasL) "✓" else "–", "  M:", if (hasM) "✓" else "–")
     src <- tryCatch(plot_data()$source, error=function(e) NULL)
     paste0("Nodes: ", igraph::vcount(G),
