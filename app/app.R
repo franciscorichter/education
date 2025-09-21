@@ -29,122 +29,6 @@ get_script_dir <- function() {
   }, error = function(e) {
     # Alternativa: usar directorio de trabajo actual
   })
-
-  # ===== Advanced Modeling: Estimation (PC algorithm) =====
-  am_choices <- reactive({
-    sel <- input$am_q
-    if (is.null(sel) || !(sel %in% questionnaire_names)) return(list(vars = character(0), data = NULL))
-    q <- enla_data$questionnaire_data[[sel]]
-    if (is.null(q) || !q$success) return(list(vars = character(0), data = NULL))
-    # Use numeric data matrix prepared in questionnaire$data; columns are items
-    list(vars = q$columns, data = q$data, full_data = q$full_data)
-  })
-
-  output$am_var_ui <- renderUI({
-    ch <- am_choices()
-    vars <- ch$vars
-    # Fallback: use column names of q$data if q$columns is empty
-    if (length(vars) == 0 && !is.null(ch$data)) vars <- colnames(ch$data)
-    tagList(
-      fluidRow(
-        column(6, textInput("am_filter", "Filter items (regex):", value = "", placeholder = "e.g., ^p2[0-9]_|_01$")),
-        column(3, br(), actionButton("am_sel_all", "Select all", class = "btn btn-light btn-sm", width = "100%")),
-        column(3, br(), actionButton("am_sel_none", "Clear all", class = "btn btn-light btn-sm", width = "100%"))
-      ),
-      div(style = "max-height: 260px; overflow-y: auto; border: 1px solid #e5e7eb; padding: 8px;",
-          checkboxGroupInput("am_vars", NULL, choices = vars, selected = character(0), inline = FALSE))
-    )
-  })
-
-  observeEvent(input$am_sel_all, {
-    ch <- am_choices(); vars <- ch$vars; if (length(vars) == 0 && !is.null(ch$data)) vars <- colnames(ch$data)
-    # Apply filter if present
-    if (!is.null(input$am_filter) && nzchar(input$am_filter)) {
-      keep <- tryCatch(grepl(input$am_filter, vars), error = function(e) rep(TRUE, length(vars)))
-      vars <- vars[keep]
-    }
-    updateCheckboxGroupInput(session, "am_vars", selected = vars)
-  })
-
-  observeEvent(input$am_sel_none, {
-    updateCheckboxGroupInput(session, "am_vars", selected = character(0))
-  })
-
-  # Re-render choices on filter change
-  observeEvent(input$am_filter, {
-    ch <- am_choices(); vars <- ch$vars; if (length(vars) == 0 && !is.null(ch$data)) vars <- colnames(ch$data)
-    if (!is.null(input$am_filter) && nzchar(input$am_filter)) {
-      keep <- tryCatch(grepl(input$am_filter, vars), error = function(e) rep(TRUE, length(vars)))
-      vars <- vars[keep]
-    }
-    updateCheckboxGroupInput(session, "am_vars", choices = vars)
-  }, ignoreInit = TRUE)
-
-  am_status <- reactiveVal("")
-
-  am_pc_result <- eventReactive(input$am_run, {
-    ch <- am_choices()
-    vars <- input$am_vars
-    if (is.null(ch$data) || length(vars) < 2) { am_status(""); return(list(error = "Select at least 2 variables")) }
-    # Build base X from selected questionnaire items
-    X <- dplyr::select(ch$data, dplyr::all_of(vars))
-    # Append target L/M from full_data
-    target <- input$am_target
-    if (!is.null(ch$full_data) && target %in% c("L","M")) {
-      tcol <- if (target == "L") "medida500_L" else "medida500_M"
-      if (tcol %in% names(ch$full_data)) {
-        X[[target]] <- suppressWarnings(as.numeric(ch$full_data[[tcol]]))
-      } else {
-        return(list(error = paste0("Target column ", tcol, " not found in full_data")))
-      }
-    } else {
-      return(list(error = "Target variable not available for this questionnaire"))
-    }
-    # Remove rows with all NA on selected vars
-    X <- X[rowSums(is.na(X)) < ncol(X), , drop = FALSE]
-    if (nrow(X) < 10) return(list(error = "Not enough rows after NA filtering"))
-    # Ensure numeric
-    X[] <- lapply(X, function(col) suppressWarnings(as.numeric(col)))
-    # Replace remaining NAs with column means for correlation-based CI test
-    for (j in seq_len(ncol(X))) {
-      m <- mean(X[[j]], na.rm = TRUE)
-      if (is.na(m)) m <- 0
-      idx <- which(is.na(X[[j]]))
-      if (length(idx) > 0) X[[j]][idx] <- m
-    }
-    suffStat <- list(C = stats::cor(X), n = nrow(X))
-    alpha <- if (is.null(input$am_alpha)) 0.05 else input$am_alpha
-    t0 <- Sys.time(); am_status("Running PC algorithm...")
-    g <- tryCatch(pcalg::pc(suffStat = suffStat, indepTest = pcalg::gaussCItest,
-                             alpha = alpha, labels = colnames(X), verbose = FALSE), error = function(e) e)
-    if (inherits(g, "error")) return(list(error = paste("PC error:", g$message)))
-    # Convert to igraph for plotting and edges list
-    amat <- as(g@graph, "matrix")
-    edges <- which(amat != 0, arr.ind = TRUE)
-    edge_df <- tibble::tibble(from = rownames(amat)[edges[,1]], to = colnames(amat)[edges[,2]])
-    elapsed <- difftime(Sys.time(), t0, units = "secs")
-    am_status(paste0("Done in ", round(as.numeric(elapsed), 2), "s (n=", nrow(X), ", p=", ncol(X), ")"))
-    list(graph = g, edges = edge_df)
-  })
-
-  output$am_dag_plot <- renderPlot({
-    res <- am_pc_result()
-    if (is.null(res)) return()
-    if (!is.null(res$error)) { plot.new(); title(res$error); return() }
-    g <- res$graph
-    # Simple plotting using igraph conversion for consistency
-    ig <- igraph::graph_from_adjacency_matrix(as(g@graph, "matrix"), mode = "directed")
-    plot(ig, vertex.size = 18, vertex.label.cex = 0.8, edge.arrow.size = 0.4, layout = igraph::layout_with_fr)
-  })
-
-  output$am_edges_table <- renderDT({
-    res <- am_pc_result()
-    if (is.null(res)) return(datatable(data.frame()))
-    if (!is.null(res$error)) return(datatable(data.frame(Info = res$error), rownames = FALSE))
-    datatable(res$edges, options = list(pageLength = 10, scrollX = TRUE), rownames = FALSE)
-  })
-
-  output$am_status <- renderText({ am_status() })
   return(normalizePath(getwd(), mustWork = TRUE))
 }
 
@@ -168,7 +52,15 @@ if (!is.null(enla_data$em_data)) {
   em_summaries <- tryCatch(aggregate_em_data(enla_data$em_data), error = function(e) NULL)
 }
 
-# Título amigable desde nombre del archivo
+# Obtener nombres de cuestionarios
+questionnaire_names <- names(enla_data$questionnaire_data)
+if (is.null(questionnaire_names)) {
+  questionnaire_names <- character(0)
+}
+# Excluir cuestionarios base_web2
+questionnaire_names <- questionnaire_names[!grepl("(?i)base_web2", questionnaire_names)]
+
+# Ordenar cuestionarios: Estudiante y Familia primero, luego el resto
 friendly_title <- function(p) {
   b <- p
   bl <- tolower(b)
@@ -181,14 +73,17 @@ friendly_title <- function(p) {
   if (grepl("familia", bl)) return("Familia")
   b
 }
-
-# Obtener nombres de cuestionarios
-questionnaire_names <- names(enla_data$questionnaire_data)
-if (is.null(questionnaire_names)) {
-  questionnaire_names <- character(0)
+q_priority <- function(x) {
+  xl <- tolower(x)
+  if (grepl("estudiante", xl)) return(1L)
+  if (grepl("familia", xl)) return(2L)
+  return(3L)
 }
-# Excluir cuestionarios base_web2
-questionnaire_names <- questionnaire_names[!grepl("(?i)base_web2", questionnaire_names)]
+ord_idx <- order(vapply(questionnaire_names, q_priority, integer(1)), questionnaire_names)
+questionnaire_ids_ordered <- questionnaire_names[ord_idx]
+questionnaire_labels <- vapply(questionnaire_ids_ordered, friendly_title, character(1))
+if (any(duplicated(questionnaire_labels))) questionnaire_labels <- make.unique(questionnaire_labels)
+am_select_choices <- stats::setNames(questionnaire_ids_ordered, questionnaire_labels)
 
 # Ordenar: Estudiante y Familia primero, luego el resto; crear etiquetas legibles
 q_priority <- function(x) {
@@ -460,42 +355,7 @@ app_dir <- get_script_dir()
 # Cargar función de integración dinámica
 source(file.path(app_dir, "../scripts/data_integration.R"))
 
-# Cargar datos procesados
-raw_data_path <- file.path(app_dir, "../data/enla_processed_data.rds")
-if (file.exists(raw_data_path)) {
-  enla_data <- tryCatch(readRDS(raw_data_path), error = function(e) list())
-} else {
-  enla_data <- list()
-}
-
-# Construir resúmenes EM al igual que el pipeline
-em_summaries <- NULL
-if (!is.null(enla_data$em_data)) {
-  # La función aggregate_em_data está en scripts/data_integration.R
-  em_summaries <- tryCatch(aggregate_em_data(enla_data$em_data), error = function(e) NULL)
-}
-
-# Obtener nombres de cuestionarios
-questionnaire_names <- names(enla_data$questionnaire_data)
-if (is.null(questionnaire_names)) {
-  questionnaire_names <- character(0)
-}
-# Excluir cuestionarios base_web2
-questionnaire_names <- questionnaire_names[!grepl("(?i)base_web2", questionnaire_names)]
-
-# Título amigable desde nombre del archivo
-friendly_title <- function(p) {
-  b <- p
-  bl <- tolower(b)
-  if (grepl("estudiante", bl)) return("Estudiante")
-  if (grepl("docente(mat|matemat)", bl)) return("Docente Matemática")
-  if (grepl("docente(com|comunic)", bl)) return("Docente Comunicación")
-  if (grepl("docente(tutor)", bl)) return("Docente Tutor")
-  if (grepl("director.*f1", bl)) return("Director F1")
-  if (grepl("director.*f2", bl)) return("Director F2")
-  if (grepl("familia", bl)) return("Familia")
-  b
-}
+# (Removed duplicate later blocks and duplicate friendly_title definition)
 
 # ===== Diccionario: lectura de la hoja 2 (o 'Diccionario') =====
 get_any_dict <- function(xlsx_path) {
@@ -786,31 +646,6 @@ ui <- fluidPage(
           )
         )
       )
-    ),
-    list(
-      # Pestaña de información
-      tabPanel(
-        title = "ℹ️ Información",
-        value = "info",
-        h3("Información del Sistema"),
-
-        wellPanel(
-          h4("📁 Archivos de Datos:"),
-          verbatimTextOutput("file_info")
-        ),
-
-        wellPanel(
-          h4("📊 Resumen General:"),
-          fluidRow(
-            column(6, h5("Cuestionarios disponibles:")),
-            column(6, textOutput("total_questionnaires"))
-          ),
-          fluidRow(
-            column(6, h5("Datos de EM:")),
-            column(6, textOutput("em_summary"))
-          )
-        )
-      )
     )
   ))
 )
@@ -1044,12 +879,14 @@ server <- function(input, output, session) {
     # Adjuntar nodos L/M desde full_data si corresponde
     if (isTRUE(input$include_lm) && !is.null(questionnaire$full_data)) {
       fd <- questionnaire$full_data
-      if ("medida500_L" %in% names(fd)) {
-        X$L <- suppressWarnings(as.numeric(fd$medida500_L))
-      }
-      if ("medida500_M" %in% names(fd)) {
-        X$M <- suppressWarnings(as.numeric(fd$medida500_M))
-      }
+      if (nrow(fd) == nrow(X)) {
+        if ("medida500_L" %in% names(fd)) {
+          X$L <- suppressWarnings(as.numeric(fd$medida500_L))
+        }
+        if ("medida500_M" %in% names(fd)) {
+          X$M <- suppressWarnings(as.numeric(fd$medida500_M))
+        }
+      } # else: skip appending L/M to avoid row-size mismatch
     }
 
     # Filtrar columnas de baja calidad
