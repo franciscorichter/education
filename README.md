@@ -1,166 +1,118 @@
 # Plataforma ENLA de Análisis de Datos Educativos
 
-Una aplicación R Shiny completa para analizar datos educativos ENLA con integración dinámica de datos y análisis de redes por cuestionario.
+Aplicación R Shiny para analizar datos ENLA con integración robusta de EM + cuestionarios, redes de correlación, exploración de preguntas vía diccionario y EDA comparativo.
 
 ## 📁 Estructura del Proyecto
 
 ```
-github/education/
-├── 📁 data/                         # Todos los archivos de datos
-│   ├── 📁 xlsx/                    # 9 archivos Excel crudos (247MB)
-│   └── 📄 enla_raw_data.rds        # Datos procesados para la app
-├── 📁 app/                         # Aplicación Shiny completa
-│   ├── 📄 app.R                    # App principal en español
-│   └── 📄 launch_app.sh           # Lanzador
-├── 📁 scripts/                     # Scripts de utilidad
-│   ├── 📄 data_integration.R       # Carga y matching de datos
-│   └── 📄 validate_data.R          # Validación de datos
-├── 📄 launch_app.sh               # Lanzador principal
-├── 📄 INSTRUCCIONES_MATCHING.txt   # Guía de matching
-└── 📄 README.md                   # Documentación
+education/
+├── data/
+│   ├── xlsx/                      # Archivos Excel crudos (cuestionarios + EM)
+│   └── enla_processed_data.rds    # Salida del pipeline (input de la app)
+├── app/
+│   └── app.R                      # App Shiny principal
+├── scripts/
+│   ├── data_integration.R         # Pipeline: carga, estandarización e integración
+│   ├── data_validation.R          # Chequeos de consistencia
+│   └── eda.R                      # EDA standalone (genera figuras PNG)
+├── outputs/
+│   └── eda/
+│       └── figures/               # Figuras PNG generadas por scripts/eda.R
+├── INSTRUCCIONES_MATCHING.txt
+└── README.md
 ```
 
-## 🚀 Inicio Rápido
+## 🚀 Puesta en Marcha
 
-### **Opción 1: Lanzador de un clic (Recomendado)**
+- Requisitos: R >= 4.0 y paquetes: `shiny`, `readxl`, `readr`, `dplyr`, `purrr`, `stringr`, `igraph`, `RColorBrewer`, `tibble`, `scales`, `DT`, `ggplot2`.
+
+### 1) Ejecutar el pipeline de datos
+Genera `data/enla_processed_data.rds` con EM completo y cuestionarios integrados.
+
 ```bash
-cd github/education
-./launch_app.sh
+R -e "source('scripts/data_integration.R'); run_enla_data_pipeline()"
 ```
 
-### **Opción 2: Validación de datos**
+### 2) Lanzar la app
+
 ```bash
-./launch_app.sh --validate-only
+R -e "shiny::runApp('app', launch.browser = TRUE)"
 ```
 
-### **Opción 3: Manual**
+### (Opcional) EDA standalone
+
 ```bash
-cd github/education
-R -e "source('scripts/data_integration.R')"  # Cargar datos
-R -e "shiny::runApp('app/app.R')"             # Lanzar app
+# Todos los gráficos (gender, language, school, area) en violin y scatter
+Rscript scripts/eda.R
+
+# Solo school como scatter
+Rscript scripts/eda.R --group=school --plot=scatter
 ```
 
-## 🎯 Características Principales
+Las figuras quedan en `outputs/eda/figures/`.
 
-### **✅ Pestañas Principales:**
+## 🎯 Qué incluye la App
 
-#### **🔗 Integración:**
-- **Selecciona cuestionario** y columnas para matching
-- **Vista previa** de resultados de integración
-- **Matching dinámico** con cualquier combinación de columnas
-- **Tips contextuales** según tipo de cuestionario
-- **Solución de problemas de case sensitivity** implementada
+### 📊 EDA
+- Subpestaña Plots: 4 comparativos reactivos según tipo de gráfico (Violin o Scatter+Contour)
+  - Gender
+  - Language
+  - School (usa `gestion2`, mapeo: “Estatal” → public; “No estatal” → private)
+  - Area (mapeo: rural/urban)
+- Subpestaña Summary: tabla con filas/columnas por dataset (EM y cada cuestionario, e ítems pXX).
 
-#### **📊 Análisis por Cuestionario:**
-1. **📊 Estudiante** - Análisis estudiantil
-2. **📐 Docente Matemática** - Análisis docente matemático
-3. **📝 Docente Comunicación** - Análisis docente comunicación
-4. **👨‍👩‍👧‍👦 Familia** - Análisis familiar
-5. **🏫 Director F1/F2** - Análisis directivo
+### 🔗 Network & Questionnaire Analysis
+- Pestañas por cuestionario (arriba).
+- Subpestaña Network:
+  - Parámetros: umbral |r|, nivel (ítem vs pXX), método de agregación (mean/median/z-mean/PCA-1), opción para incluir nodos L/M.
+  - Gráfico de red.
+  - Tabla “Links to L/M”: lista de conexiones a L y M con r y |r|, ordenada por |r| y filtrada por el umbral.
+- Subpestaña Questions:
+  - Tabla con Item (pXX), Pregunta (enunciado), Sub-items y Opciones.
+  - Se obtiene desde la hoja de diccionario del Excel del cuestionario.
 
-#### **ℹ️ Información:**
-- **Resumen de archivos** disponibles
-- **Estado de datos** cargados
-- **Información del sistema**
+### 🤖 Advanced Modeling (placeholder)
+- Reservado para modelos avanzados y análisis predictivo.
 
-### **✅ Dos Análisis por Pestaña:**
-- **Columna izquierda**: Análisis de Red (correlaciones)
-- **Columna derecha**: Explorador de Datos (tablas)
+## 🔧 Detalles Técnicos clave
 
-## 🖥️ URL de Acceso:
-- **URL**: http://127.0.0.1:7856
-- **Acceso local**: http://localhost:7856
-- **Acceso de red**: http://0.0.0.0:7856
+- `scripts/data_integration.R`:
+  - Carga EM (hoja BD), estandariza nombres de columnas, no descarta columnas (para EDA), hace `make.unique` si hay duplicados (p.ej. `ID_seccion`).
+  - Carga cuestionarios, estandariza y genera `full_data`, `data` (numérico) e índices de ítems pXX/pXX_YY.
+  - Agrega EM por estudiante/sección/sede con `aggregate_em_data()`.
+  - Persistencia: `data/enla_processed_data.rds`.
 
-## 📋 Requisitos del Sistema
+- `app/app.R`:
+  - Lee el RDS, arma pestañas por cuestionario (oculta `base_web2`).
+  - Network: construye correlaciones, arma `igraph`, agrega L/M desde `full_data` si se marca la opción.
+  - LM links table: usa la matriz de correlaciones filtrada por umbral para listar enlaces a L/M.
+  - Questions: lectura flexible de diccionarios (segunda hoja o “Diccionario”).
 
-### **R Version:**
-- R 4.0 o superior
-- Descargar de: https://cran.r-project.org/
+- `scripts/eda.R`:
+  - Detecta columnas de agrupación: `sexo` (gender), `lengua_materna` (language), `gestion2` (school), `area` (area) con equivalentes.
+  - Mapea valores:
+    - Gender → boy/girl
+    - Language → spanish/other
+    - School (`gestion2`) → public/private (incluye “no estatal” → private)
+    - Area → rural/urban
+  - Genera violin y scatter+contour para M vs L.
 
-### **Paquetes R Requeridos:**
-- shiny, readxl, readr, dplyr, purrr, stringr
-- igraph, RColorBrewer, tibble, scales, DT
+## 🧪 Validación y Problemas Comunes
 
-### **Instalación Automática:**
-El lanzador instala automáticamente los paquetes faltantes.
+- “Sin datos suficientes” en EDA:
+  - La columna de agrupación puede faltar o tener valores no mapeados. Revise valores únicos y amplíe tokens.
 
-## 🎨 Cómo Usar
+- L/M no aparecen en la red:
+  - Active “Include L/M nodes”. Si sigue en blanco, verifique que `medida500_L`/`medida500_M` existan en `full_data` del cuestionario.
 
-### **1. Lanzar la aplicación:**
-```bash
-./launch_app.sh
-```
+- Diccionario no encontrado:
+  - La app busca `data/xlsx/<nombre_cuestionario>.xlsx`. Si está en otra ruta, ajuste la ubicación o comparta la ruta para incorporarla.
 
-### **2. Pestaña Integración (🔗):**
-- **Seleccionar cuestionario** en el dropdown
-- **Ver columnas disponibles** en ambos datasets
-- **Elegir columnas de matching** según tu análisis
-- **Ejecutar integración** para ver resultados
-- **Revisar vista previa** de datos integrados
+## 📦 Datos Esperados
 
-### **3. Pestañas de Análisis (ej: Estudiante):**
-- **Análisis de Red** (columna izquierda):
-  - Configurar umbral de correlación (0-0.8)
-  - Elegir nivel (ítem o constructo)
-  - Seleccionar método de agregación
-  - Construir red para generar visualización
-- **Explorador de Datos** (columna derecha):
-  - Ver resumen del cuestionario
-  - Seleccionar columnas para examinar
-  - Explorar datos en tabla interactiva
-
-## 📊 Flujo de Trabajo Típico:
-
-1. **Lanzar** la app con `./launch_app.sh`
-2. **Ir a Integración** para hacer matching (opcional)
-3. **Seleccionar pestaña** del cuestionario deseado
-4. **Configurar análisis** de red (umbral, nivel, método)
-5. **Generar red** de correlaciones
-6. **Explorar datos** en la tabla interactiva
-7. **Comparar** entre diferentes cuestionarios
-
-## 🔧 Solución de Problemas
-
-### **Problemas Comunes:**
-
-1. **"No hay datos de cuestionarios"**
-   - Ejecutar: `R -e "source('scripts/validate_data.R')"`
-   - Verificar que los archivos Excel estén en `data/xlsx/`
-
-2. **"Datos EM no disponibles"**
-   - Asegurarse que `EM_6P_2024_alumnos_innominados.xlsx` esté en `data/xlsx/`
-
-3. **"Paquetes R faltantes"**
-   - El lanzador los instala automáticamente
-
-4. **"Puerto 7856 ocupado"**
-   - Cambiar puerto en app.R
-
-### **Validación de Datos:**
-```bash
-./launch_app.sh --validate-only
-```
-
-## 📚 Diccionario de Datos
-
-### **Columnas de Matching:**
-- **ID_ESTUDIANTE**: Identificador individual del estudiante
-- **cod_mod7**: Código de 7 dígitos de la escuela
-- **anexo**: Anexo de la escuela
-- **ID_seccion**: Identificador de sección de clase
-
-### **Tipos de Análisis:**
-- **Nivel ítem**: Análisis pXX_YY (ítems específicos)
-- **Nivel constructo**: Análisis pXX (constructos agregados)
-
-### **Problema de Case Sensitivity (SOLUCIONADO):**
-- ✅ **Antes**: EM data tenía `ID_estudiante`, cuestionarios tenían `ID_ESTUDIANTE`
-- ✅ **Solución**: Estandarización automática de nombres de columnas
-- ✅ **Ahora**: Ambos datasets usan `ID_ESTUDIANTE` consistentemente
+- EM: `data/xlsx/EM_6P_2024_alumnos_innominados.xlsx` (hoja BD) u homólogo.
+- Cuestionarios: Excel por cuestionario bajo `data/xlsx/` con una hoja de diccionario (hoja 2 o “Diccionario”).
 
 ---
 
-**🎯 ¡Una plataforma ENLA completa y funcional!**
-
-**📧 Contacto**: Para preguntas o problemas, consulta la documentación original del proyecto.
+Si necesitas ajustar mapeos (p.ej., valores exactos en `gestion2` o `area`), compárteme ejemplos y los agrego. También puedo añadir descargas CSV para la tabla de enlaces L/M y anotaciones del diccionario en el listado.

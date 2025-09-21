@@ -15,6 +15,7 @@ suppressPackageStartupMessages({
   library(DT)
   library(htmltools)
   library(ggplot2)
+  suppressWarnings(suppressPackageStartupMessages(require(pcalg, quietly = TRUE)))
 })
 
 # ===== CARGAR DATOS =====
@@ -29,6 +30,66 @@ get_script_dir <- function() {
     # Alternativa: usar directorio de trabajo actual
   })
 
+  # ===== Advanced Modeling: Estimation (PC algorithm) =====
+  am_choices <- reactive({
+    sel <- input$am_q
+    if (is.null(sel) || !(sel %in% questionnaire_names)) return(list(vars = character(0), data = NULL))
+    q <- enla_data$questionnaire_data[[sel]]
+    if (is.null(q) || !q$success) return(list(vars = character(0), data = NULL))
+    # Use numeric data matrix prepared in questionnaire$data; columns are items
+    list(vars = q$columns, data = q$data)
+  })
+
+  output$am_var_ui <- renderUI({
+    ch <- am_choices()
+    checkboxGroupInput("am_vars", "Select variables (items):", choices = ch$vars, selected = character(0), inline = FALSE)
+  })
+
+  am_pc_result <- eventReactive(input$am_run, {
+    ch <- am_choices()
+    vars <- input$am_vars
+    if (is.null(ch$data) || length(vars) < 2) return(list(error = "Select at least 2 variables"))
+    X <- dplyr::select(ch$data, dplyr::all_of(vars))
+    # Remove rows with all NA on selected vars
+    X <- X[rowSums(is.na(X)) < ncol(X), , drop = FALSE]
+    if (nrow(X) < 10) return(list(error = "Not enough rows after NA filtering"))
+    # Ensure numeric
+    X[] <- lapply(X, function(col) suppressWarnings(as.numeric(col)))
+    # Replace remaining NAs with column means for correlation-based CI test
+    for (j in seq_len(ncol(X))) {
+      m <- mean(X[[j]], na.rm = TRUE)
+      if (is.na(m)) m <- 0
+      idx <- which(is.na(X[[j]]))
+      if (length(idx) > 0) X[[j]][idx] <- m
+    }
+    suffStat <- list(C = stats::cor(X), n = nrow(X))
+    alpha <- input$am_alpha %||% 0.05
+    g <- tryCatch(pcalg::pc(suffStat = suffStat, indepTest = pcalg::gaussCItest,
+                             alpha = alpha, labels = colnames(X), verbose = FALSE), error = function(e) e)
+    if (inherits(g, "error")) return(list(error = paste("PC error:", g$message)))
+    # Convert to igraph for plotting and edges list
+    amat <- as(g@graph, "matrix")
+    edges <- which(amat != 0, arr.ind = TRUE)
+    edge_df <- tibble::tibble(from = rownames(amat)[edges[,1]], to = colnames(amat)[edges[,2]])
+    list(graph = g, edges = edge_df)
+  })
+
+  output$am_dag_plot <- renderPlot({
+    res <- am_pc_result()
+    if (is.null(res)) return()
+    if (!is.null(res$error)) { plot.new(); title(res$error); return() }
+    g <- res$graph
+    # Simple plotting using igraph conversion for consistency
+    ig <- igraph::graph_from_adjacency_matrix(as(g@graph, "matrix"), mode = "directed")
+    plot(ig, vertex.size = 18, vertex.label.cex = 0.8, edge.arrow.size = 0.4, layout = igraph::layout_with_fr)
+  })
+
+  output$am_edges_table <- renderDT({
+    res <- am_pc_result()
+    if (is.null(res)) return(datatable(data.frame()))
+    if (!is.null(res$error)) return(datatable(data.frame(Info = res$error), rownames = FALSE))
+    datatable(res$edges, options = list(pageLength = 10, scrollX = TRUE), rownames = FALSE)
+  })
   return(normalizePath(getwd(), mustWork = TRUE))
 }
 
@@ -549,10 +610,6 @@ ui <- fluidPage(
               column(12, plotOutput("eda_plot_language", height = "300px"))
             ),
             fluidRow(
-              column(12, h4("School")),
-              column(12, plotOutput("eda_plot_school", height = "300px"))
-            ),
-            fluidRow(
               column(12, h4("Area")),
               column(12, plotOutput("eda_plot_area", height = "300px"))
             )
@@ -602,7 +659,14 @@ ui <- fluidPage(
               ),
               verbatimTextOutput("lm_integration_status")
             ),
-            plotOutput("network_plot", height = "600px")
+            fluidRow(
+              column(8, plotOutput("network_plot", height = "600px")),
+              column(4,
+                h5("Links to L/M"),
+                DTOutput("lm_links_table"),
+                div(class = "muted", style = "margin-top:6px;", textOutput("lm_links_info"))
+              )
+            )
           ),
           tabPanel(
             title = "Questions",
@@ -611,12 +675,46 @@ ui <- fluidPage(
           )
         )
       ),
-      # Pestaña de modelamiento avanzado (placeholder)
+      # Pestaña de modelamiento avanzado
       tabPanel(
         title = "🤖 Advanced Modeling",
         value = "adv_model",
-        h3("Advanced Modeling (coming soon)"),
-        p("Modelos avanzados y análisis predictivo sobre datos integrados.")
+        h3("Advanced Modeling"),
+        tabsetPanel(
+          id = "am_tabs",
+          tabPanel(
+            title = "Estimation",
+            value = "am_estimation",
+            wellPanel(
+              fluidRow(
+                column(4,
+                  selectInput("am_q", "Questionnaire:", choices = questionnaire_names, selected = if (length(questionnaire_names)>0) questionnaire_names[1] else NULL, width = "100%")
+                ),
+                column(4,
+                  sliderInput("am_alpha", "PC alpha (significance):", min = 0.001, max = 0.2, value = 0.05, step = 0.001, width = "100%")
+                ),
+                column(4,
+                  selectInput("am_target", "Target variable:", choices = c("Language (L)" = "L", "Math (M)" = "M"), selected = "L", width = "100%")
+                )
+              ),
+              uiOutput("am_var_ui"),
+              fluidRow(
+                column(8, br(), actionButton("am_run", "Run PC algorithm", class = "btn btn-primary")),
+                column(4, br(), textOutput("am_status"))
+              )
+            ),
+            fluidRow(
+              column(7, plotOutput("am_dag_plot", height = "580px")),
+              column(5, h5("DAG edges"), DTOutput("am_edges_table"))
+            )
+          ),
+          tabPanel(
+            title = "Prediction",
+            value = "am_prediction",
+            h4("Prediction (coming soon)"),
+            p("Modelos predictivos con selección de variables y validación cruzada.")
+          )
+        )
       )
     ),
     list(
@@ -709,7 +807,7 @@ server <- function(input, output, session) {
       group <- ifelse(grepl(paste(spanish, collapse = "|"), gchr), "spanish", "other")
     } else if (group_type == "school") {
       public <- c("publico","pública","publica","público","estatal","nacional","municipal")
-      private <- c("privado","privada","particular","parroquial")
+      private <- c("privado","privada","particular","parroquial","no estatal")
       group <- ifelse(grepl(paste(public, collapse = "|"), gchr), "public",
                       ifelse(grepl(paste(private, collapse = "|"), gchr), "private", NA_character_))
     } else {
@@ -769,6 +867,38 @@ server <- function(input, output, session) {
     })
     df <- dplyr::bind_rows(em_row, dplyr::bind_rows(q_rows))
     datatable(df, options = list(pageLength = 10, scrollX = TRUE), rownames = FALSE)
+  })
+
+  output$lm_links_table <- renderDT({
+    nd <- network_data()
+    if (is.null(nd) || is.null(nd$cor_df)) return(datatable(data.frame(Info = "Build a network first"), rownames = FALSE))
+    if (!isTRUE(input$include_lm)) return(datatable(data.frame(Info = "L/M nodes not included"), rownames = FALSE))
+    thr <- if (is.null(input$thr)) 0 else input$thr
+    df <- nd$cor_df
+    has_LM <- any(df$var1 %in% c("L","M") | df$var2 %in% c("L","M"))
+    if (!has_LM) return(datatable(data.frame(Info = "No L/M variables present in network data"), rownames = FALSE))
+    is_LM <- (df$var1 %in% c("L","M")) | (df$var2 %in% c("L","M"))
+    df2 <- df[is_LM & abs(df$r) >= thr, , drop = FALSE]
+    if (nrow(df2) == 0) return(datatable(data.frame(Info = "No links above threshold"), rownames = FALSE))
+    target <- ifelse(df2$var1 %in% c("L","M"), df2$var1, df2$var2)
+    node <- ifelse(df2$var1 %in% c("L","M"), df2$var2, df2$var1)
+    out <- tibble::tibble(
+      target = target,
+      node = node,
+      r = df2$r,
+      abs_r = abs(df2$r)
+    ) %>% dplyr::arrange(dplyr::desc(abs_r))
+    datatable(out, options = list(pageLength = 10, order = list(list(3, 'desc'))), rownames = FALSE)
+  })
+
+  output$lm_links_info <- renderText({
+    nd <- network_data()
+    if (is.null(nd) || is.null(nd$cor_df)) return("")
+    df <- nd$cor_df
+    n_edges <- nrow(df)
+    n_with_L <- sum(df$var1 == "L" | df$var2 == "L")
+    n_with_M <- sum(df$var1 == "M" | df$var2 == "M")
+    paste0("Edges: ", n_edges, " | with L: ", n_with_L, " | with M: ", n_with_M)
   })
 
   # Conteo y resumen bajo el tab de NQA
@@ -880,7 +1010,8 @@ server <- function(input, output, session) {
     E(G)$weight <- abs(E(G)$cor)
 
     list(G = G, col_map = col_map, base = friendly_title(sel),
-         vars = item_cols, items_detected = items_detected)
+         vars = item_cols, items_detected = items_detected,
+         cor_df = cor_df)
   })
 
   # Gráfico de red
