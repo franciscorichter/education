@@ -37,19 +37,69 @@ get_script_dir <- function() {
     q <- enla_data$questionnaire_data[[sel]]
     if (is.null(q) || !q$success) return(list(vars = character(0), data = NULL))
     # Use numeric data matrix prepared in questionnaire$data; columns are items
-    list(vars = q$columns, data = q$data)
+    list(vars = q$columns, data = q$data, full_data = q$full_data)
   })
 
   output$am_var_ui <- renderUI({
     ch <- am_choices()
-    checkboxGroupInput("am_vars", "Select variables (items):", choices = ch$vars, selected = character(0), inline = FALSE)
+    vars <- ch$vars
+    # Fallback: use column names of q$data if q$columns is empty
+    if (length(vars) == 0 && !is.null(ch$data)) vars <- colnames(ch$data)
+    tagList(
+      fluidRow(
+        column(6, textInput("am_filter", "Filter items (regex):", value = "", placeholder = "e.g., ^p2[0-9]_|_01$")),
+        column(3, br(), actionButton("am_sel_all", "Select all", class = "btn btn-light btn-sm", width = "100%")),
+        column(3, br(), actionButton("am_sel_none", "Clear all", class = "btn btn-light btn-sm", width = "100%"))
+      ),
+      div(style = "max-height: 260px; overflow-y: auto; border: 1px solid #e5e7eb; padding: 8px;",
+          checkboxGroupInput("am_vars", NULL, choices = vars, selected = character(0), inline = FALSE))
+    )
   })
+
+  observeEvent(input$am_sel_all, {
+    ch <- am_choices(); vars <- ch$vars; if (length(vars) == 0 && !is.null(ch$data)) vars <- colnames(ch$data)
+    # Apply filter if present
+    if (!is.null(input$am_filter) && nzchar(input$am_filter)) {
+      keep <- tryCatch(grepl(input$am_filter, vars), error = function(e) rep(TRUE, length(vars)))
+      vars <- vars[keep]
+    }
+    updateCheckboxGroupInput(session, "am_vars", selected = vars)
+  })
+
+  observeEvent(input$am_sel_none, {
+    updateCheckboxGroupInput(session, "am_vars", selected = character(0))
+  })
+
+  # Re-render choices on filter change
+  observeEvent(input$am_filter, {
+    ch <- am_choices(); vars <- ch$vars; if (length(vars) == 0 && !is.null(ch$data)) vars <- colnames(ch$data)
+    if (!is.null(input$am_filter) && nzchar(input$am_filter)) {
+      keep <- tryCatch(grepl(input$am_filter, vars), error = function(e) rep(TRUE, length(vars)))
+      vars <- vars[keep]
+    }
+    updateCheckboxGroupInput(session, "am_vars", choices = vars)
+  }, ignoreInit = TRUE)
+
+  am_status <- reactiveVal("")
 
   am_pc_result <- eventReactive(input$am_run, {
     ch <- am_choices()
     vars <- input$am_vars
-    if (is.null(ch$data) || length(vars) < 2) return(list(error = "Select at least 2 variables"))
+    if (is.null(ch$data) || length(vars) < 2) { am_status(""); return(list(error = "Select at least 2 variables")) }
+    # Build base X from selected questionnaire items
     X <- dplyr::select(ch$data, dplyr::all_of(vars))
+    # Append target L/M from full_data
+    target <- input$am_target
+    if (!is.null(ch$full_data) && target %in% c("L","M")) {
+      tcol <- if (target == "L") "medida500_L" else "medida500_M"
+      if (tcol %in% names(ch$full_data)) {
+        X[[target]] <- suppressWarnings(as.numeric(ch$full_data[[tcol]]))
+      } else {
+        return(list(error = paste0("Target column ", tcol, " not found in full_data")))
+      }
+    } else {
+      return(list(error = "Target variable not available for this questionnaire"))
+    }
     # Remove rows with all NA on selected vars
     X <- X[rowSums(is.na(X)) < ncol(X), , drop = FALSE]
     if (nrow(X) < 10) return(list(error = "Not enough rows after NA filtering"))
@@ -63,7 +113,8 @@ get_script_dir <- function() {
       if (length(idx) > 0) X[[j]][idx] <- m
     }
     suffStat <- list(C = stats::cor(X), n = nrow(X))
-    alpha <- input$am_alpha %||% 0.05
+    alpha <- if (is.null(input$am_alpha)) 0.05 else input$am_alpha
+    t0 <- Sys.time(); am_status("Running PC algorithm...")
     g <- tryCatch(pcalg::pc(suffStat = suffStat, indepTest = pcalg::gaussCItest,
                              alpha = alpha, labels = colnames(X), verbose = FALSE), error = function(e) e)
     if (inherits(g, "error")) return(list(error = paste("PC error:", g$message)))
@@ -71,6 +122,8 @@ get_script_dir <- function() {
     amat <- as(g@graph, "matrix")
     edges <- which(amat != 0, arr.ind = TRUE)
     edge_df <- tibble::tibble(from = rownames(amat)[edges[,1]], to = colnames(amat)[edges[,2]])
+    elapsed <- difftime(Sys.time(), t0, units = "secs")
+    am_status(paste0("Done in ", round(as.numeric(elapsed), 2), "s (n=", nrow(X), ", p=", ncol(X), ")"))
     list(graph = g, edges = edge_df)
   })
 
@@ -90,6 +143,8 @@ get_script_dir <- function() {
     if (!is.null(res$error)) return(datatable(data.frame(Info = res$error), rownames = FALSE))
     datatable(res$edges, options = list(pageLength = 10, scrollX = TRUE), rownames = FALSE)
   })
+
+  output$am_status <- renderText({ am_status() })
   return(normalizePath(getwd(), mustWork = TRUE))
 }
 
@@ -113,14 +168,6 @@ if (!is.null(enla_data$em_data)) {
   em_summaries <- tryCatch(aggregate_em_data(enla_data$em_data), error = function(e) NULL)
 }
 
-# Obtener nombres de cuestionarios
-questionnaire_names <- names(enla_data$questionnaire_data)
-if (is.null(questionnaire_names)) {
-  questionnaire_names <- character(0)
-}
-# Excluir cuestionarios base_web2
-questionnaire_names <- questionnaire_names[!grepl("(?i)base_web2", questionnaire_names)]
-
 # Título amigable desde nombre del archivo
 friendly_title <- function(p) {
   b <- p
@@ -134,6 +181,28 @@ friendly_title <- function(p) {
   if (grepl("familia", bl)) return("Familia")
   b
 }
+
+# Obtener nombres de cuestionarios
+questionnaire_names <- names(enla_data$questionnaire_data)
+if (is.null(questionnaire_names)) {
+  questionnaire_names <- character(0)
+}
+# Excluir cuestionarios base_web2
+questionnaire_names <- questionnaire_names[!grepl("(?i)base_web2", questionnaire_names)]
+
+# Ordenar: Estudiante y Familia primero, luego el resto; crear etiquetas legibles
+q_priority <- function(x) {
+  xl <- tolower(x)
+  if (grepl("estudiante", xl)) return(1L)
+  if (grepl("familia", xl)) return(2L)
+  return(3L)
+}
+ord_idx <- order(vapply(questionnaire_names, q_priority, integer(1)), questionnaire_names)
+questionnaire_ids_ordered <- questionnaire_names[ord_idx]
+questionnaire_labels <- vapply(questionnaire_ids_ordered, friendly_title, character(1))
+if (any(duplicated(questionnaire_labels))) questionnaire_labels <- make.unique(questionnaire_labels)
+am_select_choices <- stats::setNames(questionnaire_ids_ordered, questionnaire_labels)
+
 
 # ===== Diccionario: lectura de la hoja 2 (o 'Diccionario') =====
 get_any_dict <- function(xlsx_path) {
@@ -688,7 +757,7 @@ ui <- fluidPage(
             wellPanel(
               fluidRow(
                 column(4,
-                  selectInput("am_q", "Questionnaire:", choices = questionnaire_names, selected = if (length(questionnaire_names)>0) questionnaire_names[1] else NULL, width = "100%")
+                  selectInput("am_q", "Questionnaire:", choices = am_select_choices, selected = if (length(questionnaire_ids_ordered)>0) questionnaire_ids_ordered[1] else NULL, width = "100%")
                 ),
                 column(4,
                   sliderInput("am_alpha", "PC alpha (significance):", min = 0.001, max = 0.2, value = 0.05, step = 0.001, width = "100%")
@@ -697,6 +766,7 @@ ui <- fluidPage(
                   selectInput("am_target", "Target variable:", choices = c("Language (L)" = "L", "Math (M)" = "M"), selected = "L", width = "100%")
                 )
               ),
+              h5("Variables"),
               uiOutput("am_var_ui"),
               fluidRow(
                 column(8, br(), actionButton("am_run", "Run PC algorithm", class = "btn btn-primary")),
@@ -877,17 +947,23 @@ server <- function(input, output, session) {
     df <- nd$cor_df
     has_LM <- any(df$var1 %in% c("L","M") | df$var2 %in% c("L","M"))
     if (!has_LM) return(datatable(data.frame(Info = "No L/M variables present in network data"), rownames = FALSE))
+    # Identify correlation column and coerce to numeric
+    rcol <- if ("r" %in% names(df)) "r" else if ("cor" %in% names(df)) "cor" else NULL
+    if (is.null(rcol)) return(datatable(data.frame(Info = "Correlation column not found"), rownames = FALSE))
+    rnum <- suppressWarnings(as.numeric(df[[rcol]]))
     is_LM <- (df$var1 %in% c("L","M")) | (df$var2 %in% c("L","M"))
-    df2 <- df[is_LM & abs(df$r) >= thr, , drop = FALSE]
+    keep <- is_LM & !is.na(rnum) & abs(rnum) >= thr
+    df2 <- df[keep, , drop = FALSE]
     if (nrow(df2) == 0) return(datatable(data.frame(Info = "No links above threshold"), rownames = FALSE))
     target <- ifelse(df2$var1 %in% c("L","M"), df2$var1, df2$var2)
     node <- ifelse(df2$var1 %in% c("L","M"), df2$var2, df2$var1)
     out <- tibble::tibble(
       target = target,
       node = node,
-      r = df2$r,
-      abs_r = abs(df2$r)
-    ) %>% dplyr::arrange(dplyr::desc(abs_r))
+      r = suppressWarnings(as.numeric(df2[[rcol]]))
+    )
+    out$abs_r <- abs(out$r)
+    out <- dplyr::arrange(out, dplyr::desc(abs_r))
     datatable(out, options = list(pageLength = 10, order = list(list(3, 'desc'))), rownames = FALSE)
   })
 
