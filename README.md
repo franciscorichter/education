@@ -1,260 +1,233 @@
-# ENLA Item Network Analysis Platform
+# ENLA Educational Data Analysis Platform
 
-## 🎯 Overview
+A standalone R Shiny application for analyzing ENLA (National Learning Assessment) educational data.
 
-This is a comprehensive **Shiny web application** for analyzing ENLA (Evaluación Nacional de Logros de Aprendizaje - National Learning Assessment) questionnaire data through **interactive network visualization** and **exploration**. The application processes multiple stakeholder perspectives (students, families, teachers, directors) and creates correlation-based networks to reveal hidden patterns in educational assessment data.
+## 📁 Current Project Structure
 
-## 🔬 What This Application Does
+```
+github/education/                    # Git repository root
+├── 📁 app/                          # R Shiny application
+│   ├── 📄 app.R                     # Main application script (with embedded paths)
+│   ├── 📄 launch_app.sh            # Easy launcher script
+│   ├── 📄 README.md                 # App documentation
+│   ├── 📁 data_prepared/            # Pre-processed CSV data (8MB)
+│   └── 📄 *.rds                     # Cached data files (60MB total)
+├── 📁 data/                         # All data files in one place
+│   ├── 📄 *.xlsx                    # 9 Excel data files (247MB)
+│   └── 📄 Nota.txt                  # Data matching instructions
+├── 📁 .git/                         # Git repository
+└── 📄 README.md                     # This file
+```
 
-### **Core Functionality**
-The ENLA Item Network platform enables researchers to:
+## 🚀 Quick Start
 
-- **Load and analyze multiple ENLA questionnaire datasets** from different stakeholder perspectives
-- **Generate correlation-based item networks** with customizable thresholds
-- **Explore questionnaire structures** with detailed question descriptions and sub-items
-- **Aggregate item-level data** into higher-level constructs using various statistical methods
-- **Integrate performance data** from mathematics assessments for outcome correlation analysis
+### **Option 1: Launcher Script (Recommended)**
+```bash
+cd github/education
+./launch_app.sh
+```
 
-### **Supported Data Sources**
-- **Student Survey** (27 main constructs: p01-p27)
-- **Family Survey** (Family perspectives on education)
-- **Teacher Surveys** (Mathematics, Communication, Tutor)
-- **Director Surveys** (F1 and F2 forms)
-- **Performance Data** (Mathematics assessment scores with L/M indicators)
+### **Option 2: Direct R Command**
+```bash
+cd github/education/app
+R -e "shiny::runApp('app.R')"
+```
 
-## ✨ Key Features
+### **Option 3: RStudio**
+1. Open `app/app.R` in RStudio
+2. Click "Run App" button
 
-### **Network Analysis Engine**
-- **Item-level networks**: Visualize correlations between individual questionnaire items (pXX_YY format)
-- **Top-level networks**: Aggregate sub-items into main constructs (pXX format) using different methods:
-  - **Mean**: Simple average of sub-items
-  - **Median**: Robust central tendency measure
-  - **Z-Mean**: Standardized average scores
-  - **PCA-1**: First principal component extraction
-- **Performance integration**: Optional overlay of student performance data (L/M scores)
-- **Interactive controls**: Adjustable correlation thresholds (0.0 to 0.8) and network parameters
+## 📊 Data Status
 
-### **Advanced Data Processing**
-- **Intelligent pattern recognition**: Automatic detection of questionnaire items using regex patterns
-- **Response coercion system**: Converts A-E responses to numeric 1-5 scales
-- **School code normalization**: Standardizes 7-digit school identifiers
-- **Multi-level caching**: Efficient data loading with automatic cache invalidation
-- **Quality filtering**: Removes low-variation and high-missing-data columns
-- **Robust error handling**: Graceful fallbacks for missing/corrupted data
-- **Data validation**: Comprehensive checks for data quality and integration
+### **✅ Complete Dataset Ready**
+- **9 Excel Files** (247MB total)
+- **8 ENLA Questionnaires** + **1 Performance Dataset**
+- **60MB Cached RDS Files** (ready for instant loading)
+- **8MB Pre-processed CSV Files**
 
-### **Smart Integration System**
-- **Dual join key strategy**: Uses student IDs for individual-level data, school codes for aggregate data
-- **Quality-based integration**: Only integrates when match rate exceeds 10%
-- **Real-time feedback**: Shows integration status and success/failure indicators
-- **Data type consistency**: Ensures proper data types for successful joins
+### **📋 Available Data Files:**
+- **Student Survey** (ENLA2024_6Pestudiante_EBRD1.xlsx) - 103MB
+- **Family Survey** (ENLA2024_6Pfamilia_EBR.xlsx) - 69MB
+- **Math Teacher Survey** (ENLA2024_6PdocenteMAT_EBR.xlsx) - 3.4MB
+- **Communication Teacher Survey** (ENLA2024_6PdocenteCOM_EBR.xlsx) - 3.8MB
+- **Tutor Teacher Survey** (ENLA2024_6PdocenteTutor_EBR.xlsx) - 3.4MB
+- **Director Survey F1** (ENLA2024_6Pdirector_EBRF1.xlsx) - 1.3MB
+- **Director Survey F2** (ENLA2024_6Pdirector_EBRF2.xlsx) - 1.6MB
+- **Performance Data** (EM_6P_2024_alumnos_innominados.xlsx) - 17MB
+- **Base Data** (base_web2_HSE_ENLA_2024.xlsx) - 23MB
 
-### **Visualization & UI**
-- **Interactive network graphs**: Color-coded nodes by construct group with variable edge thickness
-- **Real-time statistics**: Live metrics on nodes, edges, and data quality
-- **Tabbed interface**: Organized by questionnaire type with contextual help
-- **Responsive design**: Works across different screen sizes
+## 🔧 Key Features
+
+### **✅ Portable & Standalone**
+- **No hardcoded paths** - works from any location
+- **Embedded path configuration** - truly portable
+- **Self-contained** - all data included
+- **Git-ready** - can be shared or moved easily
+
+### **🚀 Performance Optimized**
+- **Intelligent caching** - 60MB RDS cache files
+- **Fast loading** - pre-processed CSV data available
+- **Versioned cache** - automatically refreshes when needed
+- **Memory efficient** - optimized data structures
+
+### **📊 Analysis Capabilities**
+- **Correlation Network Analysis** - visualize relationships between questionnaire items
+- **Multi-level Analysis** - item-level and construct-level network analysis
+- **Performance Integration** - link questionnaire responses with academic performance
+- **Interactive Visualizations** - dynamic network plots with filtering options
+- **Data Quality Assessment** - built-in data validation and quality checks
+- **Statistical Summary** - comprehensive statistical analysis of performance data
+
+## 🔗 Enhanced Data Integration
+
+### **Join Keys by Questionnaire Type:**
+
+#### **👨‍🎓 Student & Family Questionnaires**
+- **Join Key**: `ID_ESTUDIANTE`
+- **Description**: Individual student level matching
+- **Use**: Links student/family responses to EM performance data
+
+#### **👨‍🏫 Teacher Questionnaires**  
+- **Join Keys**: `cod_mod7`, `anexo`, `ID_seccion`
+- **Description**: Teacher/section level matching
+- **Use**: Links teacher responses to school-level EM data
+
+#### **🏫 Director Questionnaires**
+- **Join Keys**: `cod_mod7`, `anexo`  
+- **Description**: School/director level matching
+- **Use**: Links director responses to school-level EM data
+
+### **Integration Features:**
+- **Multi-key matching**: Handles complex join scenarios with multiple keys
+- **Automatic key detection**: Determines appropriate join keys based on questionnaire type
+- **Enhanced error handling**: Provides detailed feedback on integration issues
+- **Quality validation**: Comprehensive validation of data integration requirements
+
+## 🔄 Data Processing
+
+The app automatically processes Excel files and creates cached RDS files for faster loading. The cache is versioned and will automatically refresh when the source data or processing logic changes.
+
+### **Processing Pipeline:**
+1. **Excel Files** → **Data Cleaning** → **RDS Cache** → **Analysis Ready**
+2. **Automatic Fallbacks** - uses cached data when Excel files unavailable
+3. **Quality Validation** - checks data integrity during processing
+
+## 📈 Usage Guide
+
+### **1. Launch Application**
+```bash
+./launch_app.sh
+```
+
+### **2. Check Data Status**
+- Look at the "📊 Data Status" panel on the main page
+- Should show "✅ 8 datasets" and "✅ EM performance data loaded"
+
+### **3. Explore Data**
+- **EDA Tab**: Examine EM performance data and distributions with statistical summaries
+- **Network Analysis Tab**: Build correlation networks between questionnaire items
+- **Advanced Tab**: Future machine learning features
+
+### **4. Network Analysis**
+- Select questionnaire from dropdown
+- Choose correlation threshold (0.1-0.8)
+- Select analysis level (item-level or construct-level)
+- Click "Build network" to generate visualization
+- Use "Agregar nodos de desempeño L/M" to include performance nodes
+
+## 🎯 App Will Be Available At:
+- **URL**: http://127.0.0.1:7856
+- **Local Access**: http://localhost:7856
+- **Network Access**: http://0.0.0.0:7856
+
+## 📋 System Requirements
+
+### **R Version**
+- R 4.0 or higher
+- Available from: https://cran.r-project.org/
+
+### **Required R Packages**
+- shiny, readxl, readr, dplyr, purrr, stringr
+- igraph, RColorBrewer, tibble, scales, DT
+
+### **Automatic Installation**
+The launcher script automatically checks and installs missing packages.
 
 ## 🛠️ Technical Architecture
 
 ### **Data Processing Pipeline**
 ```mermaid
 graph LR
-    A[Excel Files] --> B[Dictionary Extraction]
-    A --> C[Data Coercion & Cleaning]
-    B --> D[Question Metadata]
-    C --> E[Caching System]
-    D --> F[Analysis Engine]
-    E --> F
-    F --> G[Network Generation]
-    F --> H[Statistical Analysis]
-    G --> I[Interactive Visualization]
+    A[Excel Files] → B[Path Resolution]
+    A → C[Data Cleaning & Validation]
+    B → D[Enhanced Join Key System]
+    C → D
+    D → E[Statistical Analysis]
+    D → F[Network Generation]
+    E → G[Interactive Visualization]
 ```
 
-### **Statistical Methods**
-- **Correlation Analysis**: Pearson correlations with pairwise complete observations
-- **Network Construction**: Graph theory using igraph package
-- **Dimensionality Reduction**: PCA-based aggregation for complex constructs
-- **Quality Assessment**: Standard deviation and missing data analysis
+### **Key Improvements Made**
+- ✅ **Enhanced join key logic** - proper matching by questionnaire type
+- ✅ **Multiple key support** - handles complex join scenarios
+- ✅ **Improved data integration** - better performance data linking
+- ✅ **Enhanced error handling** - detailed user feedback
+- ✅ **Statistical summaries** - comprehensive data analysis
+- ✅ **Comprehensive documentation** - clear usage guide
 
-### **Performance Features**
-- **Efficient caching**: Pre-processed RDS files for fast loading
-- **Memory optimization**: Automatic filtering of low-quality columns
-- **Robust error handling**: Graceful fallbacks for missing/corrupted data
-- **Source tracking**: Maintains data lineage and modification timestamps
-- **Quality-based integration**: Smart data matching with success rate validation
+## 🔧 Troubleshooting
 
-## 📊 Research Applications
+### **Common Issues:**
 
-This platform enables researchers to:
+1. **"Data directory not found"**
+   - Ensure you're running from the correct directory
+   - Check that `data/xlsx/` contains Excel files
 
-1. **Discover Hidden Patterns**
-   - Identify correlated constructs across stakeholder groups
-   - Uncover relationships between student, family, teacher, and director perspectives
-   - Reveal structural patterns in educational assessment data
+2. **"R packages missing"**
+   - Run the launcher script - it installs missing packages automatically
+   - Or manually install: `install.packages(c("shiny", "readxl", "dplyr", ...))`
 
-2. **Validate Assessment Instruments**
-   - Test questionnaire construct validity through correlation analysis
-   - Compare different aggregation methods for construct measurement
-   - Identify problematic items with low variation or high missing rates
+3. **"Port 7856 already in use"**
+   - Change port in app.R or use different port
+   - Kill existing R processes
 
-3. **Multi-Perspective Analysis**
-   - Compare stakeholder perspectives on educational factors
-   - Analyze how different groups perceive the same constructs
-   - Integrate survey responses with actual performance outcomes
+4. **"Excel files not found"**
+   - The app uses cached RDS files - this is normal and faster
+   - Excel files are used only when cache needs refreshing
 
-4. **Educational Insights**
-   - Relate questionnaire responses to mathematics performance
-   - Identify key factors influencing educational outcomes
-   - Support evidence-based educational policy decisions
+## 📚 Data Dictionary
 
-## 🚀 Installation & Setup
+### **File Naming Convention:**
+- `ENLA2024_6P{type}_{subtype}.xlsx`
+- Types: estudiante, familia, docenteMAT, docenteCOM, docenteTutor, director
 
-### **Prerequisites**
-- R 4.0+ with required packages
-- 8GB+ RAM (for large datasets)
-- Modern web browser
+### **Join Key Definitions:**
+- **Student ID**: `ID_ESTUDIANTE` - Individual student identifier
+- **School Code**: `cod_mod7` - 7-digit school identifier  
+- **Annex**: `anexo` - School annex identifier
+- **Section ID**: `ID_seccion` - Classroom section identifier
+- **Performance**: `medida500_L` (Reading), `medida500_M` (Math)
 
-### **Quick Setup**
-```bash
-# 1. Clone or download this repository
-git clone <repository-url>
-cd education
+## 🎉 Success Indicators
 
-# 2. Install R dependencies
-R -e "install.packages(c('shiny', 'readxl', 'readr', 'dplyr', 'purrr', 'stringr', 'igraph', 'RColorBrewer', 'tibble', 'scales', 'DT'))"
+### **App Successfully Started:**
+- ✅ "Starting ENLA Educational Data Analysis Platform..."
+- ✅ "Listening on http://127.0.0.1:7856"
+- ✅ Browser opens automatically
 
-# 3. Navigate to app directory
-cd app
+### **Data Successfully Loaded:**
+- ✅ "📊 Data Status" shows green checkmarks
+- ✅ "Questionnaire Data: ✅ 8 datasets"
+- ✅ "EM Performance Data: ✅ Loaded"
 
-# 4. Run the application
-R -e "shiny::runApp('app.R')"
-```
-
-### **Alternative Setup Script**
-```bash
-# Make setup script executable and run
-chmod +x setup.sh
-./setup.sh
-```
-
-## 📖 Usage Guide
-
-### **1. Select Questionnaire**
-Choose from available ENLA questionnaires in the tab selector:
-- Each tab represents a different stakeholder perspective
-- Student and Family tabs are prioritized in the interface
-
-### **2. Build Network (Redes Tab)**
-- **Edge threshold**: Set minimum absolute correlation |r| (0.0 to 0.8)
-- **Network level**:
-  - "Item-level (pXX_YY)": Individual questionnaire items
-  - "Top-level (pXX)": Aggregated constructs
-- **Aggregation method** (top-level only): Mean, Median, Z-Mean, or PCA-1
-- **Performance integration**: Toggle to add EM performance nodes (L/M scores)
-
-### **3. Explore Questions (Cuestionario Tab)**
-- Browse detailed question information and sub-items
-- View response options and construct descriptions
-- Understand the structure of each questionnaire
-
-### **4. Interpret Results**
-- **Color legend**: Different colors represent different construct groups
-- **Node size**: Larger nodes for performance indicators (L/M)
-- **Edge thickness**: Thicker edges indicate stronger correlations
-- **Network statistics**: Monitor data quality and analysis parameters
-
-## 📁 Data Requirements
-
-### **Expected File Structure**
-```
-01 - Data/xlsx/
-├── ENLA2024_6Pestudiante_EBRD1.xlsx
-├── ENLA2024_6Pfamilia_EBR.xlsx
-├── ENLA2024_6PdocenteMAT_EBR.xlsx
-├── ENLA2024_6PdocenteCOM_EBR.xlsx
-├── ENLA2024_6PdocenteTutor_EBR.xlsx
-├── ENLA2024_6Pdirector_EBRF1.xlsx
-├── ENLA2024_6Pdirector_EBRF2.xlsx
-└── EM_6P_2024_alumnos_innominados.xlsx
-```
-
-### **Data Sheet Requirements**
-- **Primary data**: Sheet named "BD" (preferred) or first sheet
-- **Dictionary data**: Second sheet with question metadata
-- **Required columns**: pXX or pXX_YY pattern columns
-- **Key identifiers**: ID_ESTUDIANTE or cod_mod7 columns
-
-## 🔧 Technical Details
-
-### **Core Functions**
-- `build_cache_for()`: Processes individual Excel files into cache format with improved error handling
-- `find_item_columns()`: Robust detection of questionnaire items with validation
-- `compute_aggregations()`: Enhanced aggregation methods with quality checks
-- `load_em_perf()`: Improved EM performance data loading with fallback mechanisms
-- **Quality Assessment**: Comprehensive data integration validation and reporting
-
-### **Performance Optimizations**
-- **Lazy loading**: Only processes data when needed
-- **Efficient correlation computation**: Uses pairwise complete observations
-- **Memory management**: Automatic quality filtering and caching
-- **Fast rendering**: Pre-computed layouts for network visualization
-- **Smart integration**: Quality-based performance data integration
-
-### **Quality Controls**
-- **Column validation**: Automatic identification of questionnaire items
-- **Response normalization**: Converts A-E responses to numeric values
-- **Missing data handling**: Robust NA value processing
-- **Format standardization**: Consistent column naming across files
-- **Integration validation**: Match rate checking before data integration
-
-## 🤝 Contributing
-
-### **Development Setup**
-```bash
-# 1. Fork the repository
-# 2. Create a feature branch
-git checkout -b feature/new-analysis-method
-
-# 3. Add new aggregation method to aggregate_group() function
-# 4. Update cache_version in app.R
-# 5. Test with sample data
-# 6. Submit pull request
-```
-
-### **Code Style**
-- Use 2-space indentation
-- Follow existing naming conventions
-- Add comments for complex statistical operations
-- Include error handling for file operations
-
-## 📄 License & Citation
-
-This application was developed as part of educational research analysis for the ENLA 2024 dataset. It represents a comprehensive tool for exploring questionnaire networks and understanding item relationships in educational assessment data.
-
-**Author**: Cascade AI Assistant
-**Date**: 2025-09-20
-**Version**: 1.0
-
-For research use, please ensure compliance with data usage agreements for the ENLA dataset. When using this tool in publications, please cite appropriately and acknowledge the methodological approach.
-
-## 🐛 Troubleshooting
-
-### **Common Issues**
-1. **Missing Excel files**: Ensure ENLA files are in the correct directory
-2. **Memory issues**: Large datasets may require more RAM
-3. **Package dependencies**: Install all required R packages
-4. **Cache problems**: Delete RDS files in app directory to force fresh processing
-5. **Integration failures**: Check data quality assessment in EDA tab for detailed diagnostics
-6. **Performance node issues**: Verify match rates are above 10% for successful integration
-
-### **Data Quality Checks**
-- **Column detection**: Application automatically identifies pXX item columns
-- **Response validation**: Converts A-E responses to numeric values
-- **Missing data analysis**: Reports percentage of missing values
-- **Variation assessment**: Identifies columns with insufficient variation
-- **Integration validation**: Checks match rates before attempting performance integration
+### **Analysis Ready:**
+- ✅ Network plots generate without errors
+- ✅ Data tables display correctly
+- ✅ All interactive features working
+- ✅ Statistical summaries available
 
 ---
 
-**For questions or support**: Please refer to the inline help text within the application or check the troubleshooting section above.
+**🎯 This is now a fully standalone, portable ENLA analysis platform with enhanced data integration and statistical analysis capabilities!**
+
+**📧 Contact**: For questions or issues, please refer to the original project documentation or create an issue in the git repository.

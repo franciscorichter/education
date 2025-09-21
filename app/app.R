@@ -24,29 +24,51 @@ suppressPackageStartupMessages({
 utils::globalVariables(c("pregunta","descripcion","top","item","question","options"))
 
 # ----- Paths -----
-root_dir <- normalizePath("/Users/pancho/Library/CloudStorage/Dropbox/Pancho/25 - CSG/04 - Education", mustWork = TRUE)
-xlsx_dir <- file.path(root_dir, "01 - Data", "xlsx")
+# Load path configuration
+# Path configuration embedded below
 
-# Check if xlsx directory exists, if not try alternative locations
+# ----- Path Configuration -----
+# Get the directory where this script is located
+get_script_dir <- function() {
+  # Try RStudio API first
+  tryCatch({
+    if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
+      return(normalizePath(dirname(rstudioapi::getActiveDocumentContext()$path), mustWork = TRUE))
+    }
+  }, error = function(e) {
+    # Fallback: try to get from command line arguments or working directory
+  })
+  
+  # Fallback: use current working directory
+  return(normalizePath(getwd(), mustWork = TRUE))
+}
+
+# Get app directory (this will be used by the main app)
+app_dir <- get_script_dir()
+
+# Set paths relative to app directory (go up one level from app/ to education/)
+root_dir <- normalizePath(file.path(app_dir, ".."), mustWork = TRUE)
+xlsx_dir <- file.path(root_dir, "data", "xlsx")
+
+# Fallback: if data not found in expected location, try to find Excel files
 if (!dir.exists(xlsx_dir)) {
-  # Try to find Excel files in the root directory
-  xlsx_dir <- root_dir
-  # If no Excel files in root, check if there are any subdirectories with Excel files
-  possible_dirs <- list.dirs(root_dir, recursive = FALSE)
-  for (dir in possible_dirs) {
-    if (length(list.files(dir, pattern = "\\.xlsx$", ignore.case = TRUE)) > 0) {
-      xlsx_dir <- dir
-      break
+  # Try the app directory itself
+  xlsx_dir <- app_dir
+  # If no Excel files in app dir, check parent directory
+  if (length(list.files(app_dir, pattern = "\\.xlsx$", ignore.case = TRUE)) == 0) {
+    possible_dirs <- list.dirs(root_dir, recursive = TRUE)
+    for (dir in possible_dirs) {
+      if (length(list.files(dir, pattern = "\\.xlsx$", ignore.case = TRUE)) > 0) {
+        xlsx_dir <- dir
+        break
+      }
     }
   }
 }
 
 # Use the app directory as the cache/DB location
-app_dir <- normalizePath(getwd(), mustWork = TRUE)
 cache_dir <- app_dir
-if (!dir.exists(cache_dir)) dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
-
-## Removed external cached mapping to avoid confusion; we now only use the 2nd sheet of the ENLA student XLSX
+if (!dir.exists(cache_dir)) dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)## Removed external cached mapping to avoid confusion; we now only use the 2nd sheet of the ENLA student XLSX
 
 # ----- Helpers -----
 # Bump this to force-refresh cached RDS objects after logic changes
@@ -455,12 +477,14 @@ build_cache_for <- function(xlsx_path) {
     df <- tibble::as_tibble(df)
   }
 
-  # Standardize key names safely
+  # Standardize key column names safely
   cn <- names(df)
   if (!is.null(cn) && length(cn) > 0) {
     nml <- tolower(cn)
     idx <- which(nml == "id_estudiante"); if (length(idx) > 0) cn[idx] <- "ID_ESTUDIANTE"
     idx <- which(nml == "cod_mod7"); if (length(idx) > 0) cn[idx] <- "cod_mod7"
+    idx <- which(nml == "medida500_l"); if (length(idx) > 0) cn[idx] <- "medida500_L"
+    idx <- which(nml == "medida500_m"); if (length(idx) > 0) cn[idx] <- "medida500_M"
     names(df) <- cn
   }
 
