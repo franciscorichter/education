@@ -605,11 +605,11 @@ ui <- fluidPage(
           )
         )
       ),
-      # Pestaña de modelamiento avanzado
+      # Pestaña de Causal Discovery
       tabPanel(
-        title = "🤖 Advanced Modeling",
+        title = "🧭 Causal Discovery",
         value = "adv_model",
-        h3("Advanced Modeling"),
+        h3("Causal Discovery"),
         tabsetPanel(
           id = "am_tabs",
           tabPanel(
@@ -636,7 +636,11 @@ ui <- fluidPage(
             ),
             fluidRow(
               column(7, plotOutput("am_dag_plot", height = "580px")),
-              column(5, h5("DAG edges"), DTOutput("am_edges_table"))
+              column(5,
+                h5("Edges into target (L/M)"),
+                DTOutput("am_edges_table"),
+                div(class = "muted", style = "margin-top:6px;", textOutput("am_edges_info"))
+              )
             )
           ),
           tabPanel(
@@ -789,8 +793,21 @@ server <- function(input, output, session) {
   })
 
   output$am_edges_table <- renderDT({
-    res <- am_pc_result(); if (is.null(res)) return(datatable(data.frame())); if (!is.null(res$error)) return(datatable(data.frame(Info = res$error), rownames = FALSE))
-    datatable(res$edges, options = list(pageLength = 10, scrollX = TRUE), rownames = FALSE)
+    res <- am_pc_result()
+    if (is.null(res)) return(datatable(data.frame()))
+    if (!is.null(res$error)) return(datatable(data.frame(Info = res$error), rownames = FALSE))
+    tgt <- if (isTRUE(input$am_target_switch)) "L" else "M"
+    df <- res$edges
+    into_tgt <- dplyr::filter(df, .data$to == tgt)
+    datatable(into_tgt, options = list(pageLength = 10, scrollX = TRUE), rownames = FALSE)
+  })
+
+  output$am_edges_info <- renderText({
+    res <- am_pc_result(); if (is.null(res) || !is.null(res$error)) return("")
+    tgt <- if (isTRUE(input$am_target_switch)) "L" else "M"
+    n_all <- nrow(res$edges)
+    n_tgt <- sum(res$edges$to == tgt)
+    paste0("Edges total: ", n_all, " | into ", tgt, ": ", n_tgt)
   })
 
   output$am_status <- renderText({ am_status() })
