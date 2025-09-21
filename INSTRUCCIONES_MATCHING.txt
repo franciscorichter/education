@@ -1,0 +1,37 @@
+INSTRUCCIONES PARA EL MATCHING DE DATOS ENLA
+===========================================
+
+Para empatar la base de datos de resultados (EM) con los cuestionarios:
+
+LLAVES DE MATCHING POR TIPO DE CUESTIONARIO:
+
+1. ESTUDIANTE Y FAMILIA:
+   - Llave principal: ID_estudiante
+   - Nota: Debe coincidir exactamente (case-sensitive)
+
+2. DOCENTE:
+   - Llaves compuestas: cod_mod7 + anexo + ID_seccion
+   - Todas las columnas deben coincidir simultáneamente
+
+3. DIRECTOR:
+   - Llaves compuestas: cod_mod7 + anexo
+   - Ambas columnas deben coincidir
+
+PROBLEMA IDENTIFICADO:
+=====================
+- Datos EM: ID_estudiante (ID mayúscula, estudiante minúscula)
+- Datos Cuestionarios: ID_ESTUDIANTE (todo mayúscula)
+
+SOLUCIÓN:
+- Normalizar nombres de columnas a mayúsculas en ambos datasets
+- Usar matching case-insensitive para ID_ESTUDIANTE
+
+COLUMNAS ESTANDARIZADAS:
+=======================
+- ID_ESTUDIANTE (estudiante individual)
+- cod_mod7 (código de escuela 7 dígitos)
+- anexo (anexo de escuela)
+- ID_seccion (identificador de sección)
+- medida500_L (puntuación lectura)
+- medida500_M (puntuación matemática)
+

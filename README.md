@@ -1,233 +1,166 @@
-# ENLA Educational Data Analysis Platform
+# Plataforma ENLA de Análisis de Datos Educativos
 
-A standalone R Shiny application for analyzing ENLA (National Learning Assessment) educational data.
+Una aplicación R Shiny completa para analizar datos educativos ENLA con integración dinámica de datos y análisis de redes por cuestionario.
 
-## 📁 Current Project Structure
+## 📁 Estructura del Proyecto
 
 ```
-github/education/                    # Git repository root
-├── 📁 app/                          # R Shiny application
-│   ├── 📄 app.R                     # Main application script (with embedded paths)
-│   ├── 📄 launch_app.sh            # Easy launcher script
-│   ├── 📄 README.md                 # App documentation
-│   ├── 📁 data_prepared/            # Pre-processed CSV data (8MB)
-│   └── 📄 *.rds                     # Cached data files (60MB total)
-├── 📁 data/                         # All data files in one place
-│   ├── 📄 *.xlsx                    # 9 Excel data files (247MB)
-│   └── 📄 Nota.txt                  # Data matching instructions
-├── 📁 .git/                         # Git repository
-└── 📄 README.md                     # This file
+github/education/
+├── 📁 data/                         # Todos los archivos de datos
+│   ├── 📁 xlsx/                    # 9 archivos Excel crudos (247MB)
+│   └── 📄 enla_raw_data.rds        # Datos procesados para la app
+├── 📁 app/                         # Aplicación Shiny completa
+│   ├── 📄 app.R                    # App principal en español
+│   └── 📄 launch_app.sh           # Lanzador
+├── 📁 scripts/                     # Scripts de utilidad
+│   ├── 📄 data_integration.R       # Carga y matching de datos
+│   └── 📄 validate_data.R          # Validación de datos
+├── 📄 launch_app.sh               # Lanzador principal
+├── 📄 INSTRUCCIONES_MATCHING.txt   # Guía de matching
+└── 📄 README.md                   # Documentación
 ```
 
-## 🚀 Quick Start
+## 🚀 Inicio Rápido
 
-### **Option 1: Launcher Script (Recommended)**
+### **Opción 1: Lanzador de un clic (Recomendado)**
 ```bash
 cd github/education
 ./launch_app.sh
 ```
 
-### **Option 2: Direct R Command**
+### **Opción 2: Validación de datos**
 ```bash
-cd github/education/app
-R -e "shiny::runApp('app.R')"
+./launch_app.sh --validate-only
 ```
 
-### **Option 3: RStudio**
-1. Open `app/app.R` in RStudio
-2. Click "Run App" button
+### **Opción 3: Manual**
+```bash
+cd github/education
+R -e "source('scripts/data_integration.R')"  # Cargar datos
+R -e "shiny::runApp('app/app.R')"             # Lanzar app
+```
 
-## 📊 Data Status
+## 🎯 Características Principales
 
-### **✅ Complete Dataset Ready**
-- **9 Excel Files** (247MB total)
-- **8 ENLA Questionnaires** + **1 Performance Dataset**
-- **60MB Cached RDS Files** (ready for instant loading)
-- **8MB Pre-processed CSV Files**
+### **✅ Pestañas Principales:**
 
-### **📋 Available Data Files:**
-- **Student Survey** (ENLA2024_6Pestudiante_EBRD1.xlsx) - 103MB
-- **Family Survey** (ENLA2024_6Pfamilia_EBR.xlsx) - 69MB
-- **Math Teacher Survey** (ENLA2024_6PdocenteMAT_EBR.xlsx) - 3.4MB
-- **Communication Teacher Survey** (ENLA2024_6PdocenteCOM_EBR.xlsx) - 3.8MB
-- **Tutor Teacher Survey** (ENLA2024_6PdocenteTutor_EBR.xlsx) - 3.4MB
-- **Director Survey F1** (ENLA2024_6Pdirector_EBRF1.xlsx) - 1.3MB
-- **Director Survey F2** (ENLA2024_6Pdirector_EBRF2.xlsx) - 1.6MB
-- **Performance Data** (EM_6P_2024_alumnos_innominados.xlsx) - 17MB
-- **Base Data** (base_web2_HSE_ENLA_2024.xlsx) - 23MB
+#### **🔗 Integración:**
+- **Selecciona cuestionario** y columnas para matching
+- **Vista previa** de resultados de integración
+- **Matching dinámico** con cualquier combinación de columnas
+- **Tips contextuales** según tipo de cuestionario
+- **Solución de problemas de case sensitivity** implementada
 
-## 🔧 Key Features
+#### **📊 Análisis por Cuestionario:**
+1. **📊 Estudiante** - Análisis estudiantil
+2. **📐 Docente Matemática** - Análisis docente matemático
+3. **📝 Docente Comunicación** - Análisis docente comunicación
+4. **👨‍👩‍👧‍👦 Familia** - Análisis familiar
+5. **🏫 Director F1/F2** - Análisis directivo
 
-### **✅ Portable & Standalone**
-- **No hardcoded paths** - works from any location
-- **Embedded path configuration** - truly portable
-- **Self-contained** - all data included
-- **Git-ready** - can be shared or moved easily
+#### **ℹ️ Información:**
+- **Resumen de archivos** disponibles
+- **Estado de datos** cargados
+- **Información del sistema**
 
-### **🚀 Performance Optimized**
-- **Intelligent caching** - 60MB RDS cache files
-- **Fast loading** - pre-processed CSV data available
-- **Versioned cache** - automatically refreshes when needed
-- **Memory efficient** - optimized data structures
+### **✅ Dos Análisis por Pestaña:**
+- **Columna izquierda**: Análisis de Red (correlaciones)
+- **Columna derecha**: Explorador de Datos (tablas)
 
-### **📊 Analysis Capabilities**
-- **Correlation Network Analysis** - visualize relationships between questionnaire items
-- **Multi-level Analysis** - item-level and construct-level network analysis
-- **Performance Integration** - link questionnaire responses with academic performance
-- **Interactive Visualizations** - dynamic network plots with filtering options
-- **Data Quality Assessment** - built-in data validation and quality checks
-- **Statistical Summary** - comprehensive statistical analysis of performance data
+## 🖥️ URL de Acceso:
+- **URL**: http://127.0.0.1:7856
+- **Acceso local**: http://localhost:7856
+- **Acceso de red**: http://0.0.0.0:7856
 
-## 🔗 Enhanced Data Integration
+## 📋 Requisitos del Sistema
 
-### **Join Keys by Questionnaire Type:**
+### **R Version:**
+- R 4.0 o superior
+- Descargar de: https://cran.r-project.org/
 
-#### **👨‍🎓 Student & Family Questionnaires**
-- **Join Key**: `ID_ESTUDIANTE`
-- **Description**: Individual student level matching
-- **Use**: Links student/family responses to EM performance data
+### **Paquetes R Requeridos:**
+- shiny, readxl, readr, dplyr, purrr, stringr
+- igraph, RColorBrewer, tibble, scales, DT
 
-#### **👨‍🏫 Teacher Questionnaires**  
-- **Join Keys**: `cod_mod7`, `anexo`, `ID_seccion`
-- **Description**: Teacher/section level matching
-- **Use**: Links teacher responses to school-level EM data
+### **Instalación Automática:**
+El lanzador instala automáticamente los paquetes faltantes.
 
-#### **🏫 Director Questionnaires**
-- **Join Keys**: `cod_mod7`, `anexo`  
-- **Description**: School/director level matching
-- **Use**: Links director responses to school-level EM data
+## 🎨 Cómo Usar
 
-### **Integration Features:**
-- **Multi-key matching**: Handles complex join scenarios with multiple keys
-- **Automatic key detection**: Determines appropriate join keys based on questionnaire type
-- **Enhanced error handling**: Provides detailed feedback on integration issues
-- **Quality validation**: Comprehensive validation of data integration requirements
-
-## 🔄 Data Processing
-
-The app automatically processes Excel files and creates cached RDS files for faster loading. The cache is versioned and will automatically refresh when the source data or processing logic changes.
-
-### **Processing Pipeline:**
-1. **Excel Files** → **Data Cleaning** → **RDS Cache** → **Analysis Ready**
-2. **Automatic Fallbacks** - uses cached data when Excel files unavailable
-3. **Quality Validation** - checks data integrity during processing
-
-## 📈 Usage Guide
-
-### **1. Launch Application**
+### **1. Lanzar la aplicación:**
 ```bash
 ./launch_app.sh
 ```
 
-### **2. Check Data Status**
-- Look at the "📊 Data Status" panel on the main page
-- Should show "✅ 8 datasets" and "✅ EM performance data loaded"
+### **2. Pestaña Integración (🔗):**
+- **Seleccionar cuestionario** en el dropdown
+- **Ver columnas disponibles** en ambos datasets
+- **Elegir columnas de matching** según tu análisis
+- **Ejecutar integración** para ver resultados
+- **Revisar vista previa** de datos integrados
 
-### **3. Explore Data**
-- **EDA Tab**: Examine EM performance data and distributions with statistical summaries
-- **Network Analysis Tab**: Build correlation networks between questionnaire items
-- **Advanced Tab**: Future machine learning features
+### **3. Pestañas de Análisis (ej: Estudiante):**
+- **Análisis de Red** (columna izquierda):
+  - Configurar umbral de correlación (0-0.8)
+  - Elegir nivel (ítem o constructo)
+  - Seleccionar método de agregación
+  - Construir red para generar visualización
+- **Explorador de Datos** (columna derecha):
+  - Ver resumen del cuestionario
+  - Seleccionar columnas para examinar
+  - Explorar datos en tabla interactiva
 
-### **4. Network Analysis**
-- Select questionnaire from dropdown
-- Choose correlation threshold (0.1-0.8)
-- Select analysis level (item-level or construct-level)
-- Click "Build network" to generate visualization
-- Use "Agregar nodos de desempeño L/M" to include performance nodes
+## 📊 Flujo de Trabajo Típico:
 
-## 🎯 App Will Be Available At:
-- **URL**: http://127.0.0.1:7856
-- **Local Access**: http://localhost:7856
-- **Network Access**: http://0.0.0.0:7856
+1. **Lanzar** la app con `./launch_app.sh`
+2. **Ir a Integración** para hacer matching (opcional)
+3. **Seleccionar pestaña** del cuestionario deseado
+4. **Configurar análisis** de red (umbral, nivel, método)
+5. **Generar red** de correlaciones
+6. **Explorar datos** en la tabla interactiva
+7. **Comparar** entre diferentes cuestionarios
 
-## 📋 System Requirements
+## 🔧 Solución de Problemas
 
-### **R Version**
-- R 4.0 or higher
-- Available from: https://cran.r-project.org/
+### **Problemas Comunes:**
 
-### **Required R Packages**
-- shiny, readxl, readr, dplyr, purrr, stringr
-- igraph, RColorBrewer, tibble, scales, DT
+1. **"No hay datos de cuestionarios"**
+   - Ejecutar: `R -e "source('scripts/validate_data.R')"`
+   - Verificar que los archivos Excel estén en `data/xlsx/`
 
-### **Automatic Installation**
-The launcher script automatically checks and installs missing packages.
+2. **"Datos EM no disponibles"**
+   - Asegurarse que `EM_6P_2024_alumnos_innominados.xlsx` esté en `data/xlsx/`
 
-## 🛠️ Technical Architecture
+3. **"Paquetes R faltantes"**
+   - El lanzador los instala automáticamente
 
-### **Data Processing Pipeline**
-```mermaid
-graph LR
-    A[Excel Files] → B[Path Resolution]
-    A → C[Data Cleaning & Validation]
-    B → D[Enhanced Join Key System]
-    C → D
-    D → E[Statistical Analysis]
-    D → F[Network Generation]
-    E → G[Interactive Visualization]
+4. **"Puerto 7856 ocupado"**
+   - Cambiar puerto en app.R
+
+### **Validación de Datos:**
+```bash
+./launch_app.sh --validate-only
 ```
 
-### **Key Improvements Made**
-- ✅ **Enhanced join key logic** - proper matching by questionnaire type
-- ✅ **Multiple key support** - handles complex join scenarios
-- ✅ **Improved data integration** - better performance data linking
-- ✅ **Enhanced error handling** - detailed user feedback
-- ✅ **Statistical summaries** - comprehensive data analysis
-- ✅ **Comprehensive documentation** - clear usage guide
+## 📚 Diccionario de Datos
 
-## 🔧 Troubleshooting
+### **Columnas de Matching:**
+- **ID_ESTUDIANTE**: Identificador individual del estudiante
+- **cod_mod7**: Código de 7 dígitos de la escuela
+- **anexo**: Anexo de la escuela
+- **ID_seccion**: Identificador de sección de clase
 
-### **Common Issues:**
+### **Tipos de Análisis:**
+- **Nivel ítem**: Análisis pXX_YY (ítems específicos)
+- **Nivel constructo**: Análisis pXX (constructos agregados)
 
-1. **"Data directory not found"**
-   - Ensure you're running from the correct directory
-   - Check that `data/xlsx/` contains Excel files
-
-2. **"R packages missing"**
-   - Run the launcher script - it installs missing packages automatically
-   - Or manually install: `install.packages(c("shiny", "readxl", "dplyr", ...))`
-
-3. **"Port 7856 already in use"**
-   - Change port in app.R or use different port
-   - Kill existing R processes
-
-4. **"Excel files not found"**
-   - The app uses cached RDS files - this is normal and faster
-   - Excel files are used only when cache needs refreshing
-
-## 📚 Data Dictionary
-
-### **File Naming Convention:**
-- `ENLA2024_6P{type}_{subtype}.xlsx`
-- Types: estudiante, familia, docenteMAT, docenteCOM, docenteTutor, director
-
-### **Join Key Definitions:**
-- **Student ID**: `ID_ESTUDIANTE` - Individual student identifier
-- **School Code**: `cod_mod7` - 7-digit school identifier  
-- **Annex**: `anexo` - School annex identifier
-- **Section ID**: `ID_seccion` - Classroom section identifier
-- **Performance**: `medida500_L` (Reading), `medida500_M` (Math)
-
-## 🎉 Success Indicators
-
-### **App Successfully Started:**
-- ✅ "Starting ENLA Educational Data Analysis Platform..."
-- ✅ "Listening on http://127.0.0.1:7856"
-- ✅ Browser opens automatically
-
-### **Data Successfully Loaded:**
-- ✅ "📊 Data Status" shows green checkmarks
-- ✅ "Questionnaire Data: ✅ 8 datasets"
-- ✅ "EM Performance Data: ✅ Loaded"
-
-### **Analysis Ready:**
-- ✅ Network plots generate without errors
-- ✅ Data tables display correctly
-- ✅ All interactive features working
-- ✅ Statistical summaries available
+### **Problema de Case Sensitivity (SOLUCIONADO):**
+- ✅ **Antes**: EM data tenía `ID_estudiante`, cuestionarios tenían `ID_ESTUDIANTE`
+- ✅ **Solución**: Estandarización automática de nombres de columnas
+- ✅ **Ahora**: Ambos datasets usan `ID_ESTUDIANTE` consistentemente
 
 ---
 
-**🎯 This is now a fully standalone, portable ENLA analysis platform with enhanced data integration and statistical analysis capabilities!**
+**🎯 ¡Una plataforma ENLA completa y funcional!**
 
-**📧 Contact**: For questions or issues, please refer to the original project documentation or create an issue in the git repository.
+**📧 Contacto**: Para preguntas o problemas, consulta la documentación original del proyecto.
