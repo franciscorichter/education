@@ -15,6 +15,7 @@ suppressPackageStartupMessages({
   library(DT)
   library(htmltools)
   library(ggplot2)
+  library(shinyWidgets)
   suppressWarnings(suppressPackageStartupMessages(require(pcalg, quietly = TRUE)))
 })
 
@@ -623,7 +624,7 @@ ui <- fluidPage(
                   sliderInput("am_alpha", "PC alpha (significance):", min = 0.001, max = 0.2, value = 0.05, step = 0.001, width = "100%")
                 ),
                 column(4,
-                  selectInput("am_target", "Target variable:", choices = c("Language (L)" = "L", "Math (M)" = "M"), selected = "L", width = "100%")
+                  switchInput(inputId = "am_target_switch", label = "Target: L / M", value = TRUE, onLabel = "L", offLabel = "M")
                 )
               ),
               h5("Variables"),
@@ -670,6 +671,129 @@ server <- function(input, output, session) {
       sprintf("✅ %d filas, %d columnas", nrow(enla_data$em_data), ncol(enla_data$em_data))
     }
   })
+
+  # ===== Advanced Modeling: Estimation (PC algorithm) =====
+  am_choices <- reactive({
+    sel <- input$am_q
+    if (is.null(sel) || !(sel %in% questionnaire_names)) return(list(vars = character(0), full_data = NULL))
+    q <- enla_data$questionnaire_data[[sel]]
+    if (is.null(q) || !q$success) return(list(vars = character(0), full_data = NULL))
+    fd <- q$full_data
+    nms <- colnames(fd)
+    if (is.null(nms)) nms <- character(0)
+    # Simple and robust p-variable detection: pXX or pXX_YY
+    vars <- grep("^p\\d{1,2}(_\\d{1,2})?$", nms, ignore.case = TRUE, value = TRUE)
+    if (length(vars) == 0) {
+      # fallback: numeric columns excluding IDs and L/M
+      num_cols <- names(fd)[vapply(fd, is.numeric, logical(1))]
+      exclude <- c("medida500_L","medida500_M","ID_ESTUDIANTE","ID_estudiante","id_estudiante",
+                   "cod_mod7","cod_mod7.x","cod_mod7.y","COD_MOD7","anexo","anexo.x","anexo.y","ANEXO",
+                   "ID_seccion","ID_seccion.x","ID_seccion.y","ID_SECCION","id_seccion",
+                   "ID_ESTUDIANTE.x","ID_ESTUDIANTE.y")
+      vars <- setdiff(num_cols, exclude)
+    }
+    list(vars = vars, full_data = fd)
+  })
+
+  output$am_var_ui <- renderUI({
+    ch <- am_choices(); vars <- ch$vars
+    tagList(
+      fluidRow(
+        column(6, textInput("am_filter", "Filter items (regex):", value = "", placeholder = "e.g., ^p2[0-9]_|_01$")),
+        column(3, br(), actionButton("am_sel_all", "Select all", class = "btn btn-light btn-sm", width = "100%")),
+        column(3, br(), actionButton("am_sel_none", "Clear all", class = "btn btn-light btn-sm", width = "100%"))
+      ),
+      div(class = "muted", if (length(vars) > 0) paste0(length(vars), " variables detected") else "No variables detected"),
+      div(style = "max-height: 260px; overflow-y: auto; border: 1px solid #e5e7eb; padding: 8px;",
+          checkboxGroupInput("am_vars", NULL, choices = vars, selected = character(0), inline = FALSE))
+    )
+  })
+
+  observeEvent(input$am_sel_all, {
+    ch <- am_choices(); vars <- ch$vars
+    if (!is.null(input$am_filter) && nzchar(input$am_filter)) {
+      keep <- tryCatch(grepl(input$am_filter, vars), error = function(e) rep(TRUE, length(vars)))
+      vars <- vars[keep]
+    }
+    updateCheckboxGroupInput(session, "am_vars", selected = vars)
+  })
+
+  observeEvent(input$am_sel_none, {
+    updateCheckboxGroupInput(session, "am_vars", selected = character(0))
+  })
+
+  observeEvent(input$am_filter, {
+    ch <- am_choices(); vars <- ch$vars
+    if (!is.null(input$am_filter) && nzchar(input$am_filter)) {
+      keep <- tryCatch(grepl(input$am_filter, vars), error = function(e) rep(TRUE, length(vars)))
+      vars <- vars[keep]
+    }
+    updateCheckboxGroupInput(session, "am_vars", choices = vars)
+  }, ignoreInit = TRUE)
+
+  am_status <- reactiveVal("")
+
+  am_pc_result <- eventReactive(input$am_run, {
+    if (!requireNamespace("pcalg", quietly = TRUE)) {
+      am_status("Package 'pcalg' is required. Please install.packages('pcalg').")
+      return(list(error = "Package 'pcalg' not installed"))
+    }
+    ch <- am_choices(); vars <- input$am_vars
+    if (length(vars) < 2 || is.null(ch$full_data)) { am_status(""); return(list(error = "Select at least 2 variables")) }
+    X <- dplyr::select(ch$full_data, dplyr::all_of(vars))
+    target <- if (isTRUE(input$am_target_switch)) "L" else "M"
+    tcol <- if (target == "L") "medida500_L" else "medida500_M"
+    if (!(tcol %in% names(ch$full_data))) return(list(error = paste0("Target column ", tcol, " not found in full_data")))
+    X[[target]] <- suppressWarnings(as.numeric(ch$full_data[[tcol]]))
+
+    # Progress bar and notification
+    am_status("Preparing data...")
+    prog <- shiny::Progress$new(min = 0, max = 1)
+    on.exit(prog$close(), add = TRUE)
+    notif_id <- showNotification("Running PC algorithm...", type = "message", duration = NULL)
+    on.exit(removeNotification(notif_id), add = TRUE)
+
+    prog$set(value = 0.2, message = "Imputing missing values")
+    X <- X[rowSums(is.na(X)) < ncol(X), , drop = FALSE]
+    if (nrow(X) < 10) return(list(error = "Not enough rows after NA filtering"))
+    X[] <- lapply(X, function(col) suppressWarnings(as.numeric(col)))
+    for (j in seq_len(ncol(X))) {
+      m <- mean(X[[j]], na.rm = TRUE); if (is.na(m)) m <- 0
+      idx <- which(is.na(X[[j]])); if (length(idx) > 0) X[[j]][idx] <- m
+    }
+
+    prog$set(value = 0.5, message = "Computing correlation matrix")
+    suffStat <- list(C = stats::cor(X), n = nrow(X))
+    alpha <- if (is.null(input$am_alpha)) 0.05 else input$am_alpha
+    t0 <- Sys.time(); am_status("Running PC algorithm...")
+
+    prog$set(value = 0.8, message = "PC search")
+    g <- tryCatch(pcalg::pc(suffStat = suffStat, indepTest = pcalg::gaussCItest,
+                             alpha = alpha, labels = colnames(X), verbose = FALSE), error = function(e) e)
+    if (inherits(g, "error")) return(list(error = paste("PC error:", g$message)))
+    amat <- as(g@graph, "matrix")
+    edges <- which(amat != 0, arr.ind = TRUE)
+    edge_df <- tibble::tibble(from = rownames(amat)[edges[,1]], to = colnames(amat)[edges[,2]])
+    elapsed <- difftime(Sys.time(), t0, units = "secs")
+    prog$set(value = 1, message = "Done")
+    am_status(paste0("Done in ", round(as.numeric(elapsed), 2), "s (n=", nrow(X), ", p=", ncol(X), ")"))
+    list(graph = g, edges = edge_df)
+  })
+
+  output$am_dag_plot <- renderPlot({
+    res <- am_pc_result(); if (is.null(res)) return(); if (!is.null(res$error)) { plot.new(); title(res$error); return() }
+    ig <- igraph::graph_from_adjacency_matrix(as(res$graph@graph, "matrix"), mode = "directed")
+    cols <- rep("#4E79A7", igraph::vcount(ig)); tgt <- if (isTRUE(input$am_target_switch)) "L" else "M"
+    idx <- which(igraph::V(ig)$name == tgt); if (length(idx) > 0) cols[idx] <- "#E15759"
+    plot(ig, vertex.size = 18, vertex.label.cex = 0.8, edge.arrow.size = 0.4, vertex.color = cols, layout = igraph::layout_with_fr)
+  })
+
+  output$am_edges_table <- renderDT({
+    res <- am_pc_result(); if (is.null(res)) return(datatable(data.frame())); if (!is.null(res$error)) return(datatable(data.frame(Info = res$error), rownames = FALSE))
+    datatable(res$edges, options = list(pageLength = 10, scrollX = TRUE), rownames = FALSE)
+  })
+
+  output$am_status <- renderText({ am_status() })
 
   # Información de archivos
   output$file_info <- renderPrint({
