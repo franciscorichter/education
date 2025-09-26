@@ -15,6 +15,7 @@ suppressPackageStartupMessages({
   library(DT)
   library(htmltools)
   library(ggplot2)
+  library(mgcv)
   library(shinyWidgets)
   suppressWarnings(suppressPackageStartupMessages(require(pcalg, quietly = TRUE)))
 })
@@ -646,8 +647,31 @@ ui <- fluidPage(
           tabPanel(
             title = "Prediction",
             value = "am_prediction",
-            h4("Prediction (coming soon)"),
-            p("Modelos predictivos con selección de variables y validación cruzada.")
+            h4("Prediction — Generalized Additive Model (GAM)"),
+            wellPanel(
+              fluidRow(
+                column(4,
+                  selectInput("pr_q", "Questionnaire:", choices = am_select_choices, selected = if (length(questionnaire_ids_ordered)>0) questionnaire_ids_ordered[1] else NULL, width = "100%")
+                ),
+                column(4,
+                  switchInput(inputId = "pr_target_switch", label = "Target: L / M", value = TRUE, onLabel = "L", offLabel = "M")
+                ),
+                column(4, br(), actionButton("pr_run", "Fit GAM", class = "btn btn-primary", width = "100%"))
+              ),
+              h5("Variables"),
+              uiOutput("pr_var_ui"),
+              div(class = "muted", style = "margin-top:6px;", textOutput("pr_status"))
+            ),
+            fluidRow(
+              column(6,
+                     h5("Model summary"),
+                     verbatimTextOutput("pr_summary")
+              ),
+              column(6,
+                     h5("Diagnostics / partial effects"),
+                     plotOutput("pr_plot", height = "520px")
+              )
+            )
           )
         )
       )
@@ -811,6 +835,178 @@ server <- function(input, output, session) {
   })
 
   output$am_status <- renderText({ am_status() })
+
+  # ===== Advanced Modeling: Prediction (GAM) =====
+  pr_status <- reactiveVal("")
+
+  pr_choices <- reactive({
+    sel <- input$pr_q
+    if (is.null(sel) || !(sel %in% questionnaire_names)) return(list(vars = character(0), full_data = NULL))
+    q <- enla_data$questionnaire_data[[sel]]
+    if (is.null(q) || !q$success) return(list(vars = character(0), full_data = NULL))
+    fd <- q$full_data
+    nms <- colnames(fd)
+    if (is.null(nms)) nms <- character(0)
+    vars <- grep("^p\\d{1,2}(_\\d{1,2})?$", nms, ignore.case = TRUE, value = TRUE)
+    if (length(vars) == 0) {
+      num_cols <- names(fd)[vapply(fd, is.numeric, logical(1))]
+      exclude <- c("medida500_L","medida500_M","ID_ESTUDIANTE","ID_estudiante","id_estudiante",
+                   "cod_mod7","cod_mod7.x","cod_mod7.y","COD_MOD7","anexo","anexo.x","anexo.y","ANEXO",
+                   "ID_seccion","ID_seccion.x","ID_seccion.y","ID_SECCION","id_seccion",
+                   "ID_ESTUDIANTE.x","ID_ESTUDIANTE.y")
+      vars <- setdiff(num_cols, exclude)
+    }
+    list(vars = vars, full_data = fd)
+  })
+
+  output$pr_var_ui <- renderUI({
+    ch <- pr_choices(); vars <- ch$vars
+    tagList(
+      fluidRow(
+        column(6, textInput("pr_filter", "Filter items (regex):", value = "", placeholder = "e.g., ^p2[0-9]_|_01$")),
+        column(3, br(), actionButton("pr_sel_all", "Select all", class = "btn btn-light btn-sm", width = "100%")),
+        column(3, br(), actionButton("pr_sel_none", "Clear all", class = "btn btn-light btn-sm", width = "100%"))
+      ),
+      div(class = "muted", if (length(vars) > 0) paste0(length(vars), " variables detected") else "No variables detected"),
+      div(style = "max-height: 260px; overflow-y: auto; border: 1px solid #e5e7eb; padding: 8px;",
+          checkboxGroupInput("pr_vars", NULL, choices = vars, selected = character(0), inline = FALSE))
+    )
+  })
+
+  observeEvent(input$pr_sel_all, {
+    ch <- pr_choices(); vars <- ch$vars
+    if (!is.null(input$pr_filter) && nzchar(input$pr_filter)) {
+      keep <- tryCatch(grepl(input$pr_filter, vars), error = function(e) rep(TRUE, length(vars)))
+      vars <- vars[keep]
+    }
+    updateCheckboxGroupInput(session, "pr_vars", selected = vars)
+  })
+
+  observeEvent(input$pr_sel_none, {
+    updateCheckboxGroupInput(session, "pr_vars", selected = character(0))
+  })
+
+  observeEvent(input$pr_filter, {
+    ch <- pr_choices(); vars <- ch$vars
+    if (!is.null(input$pr_filter) && nzchar(input$pr_filter)) {
+      keep <- tryCatch(grepl(input$pr_filter, vars), error = function(e) rep(TRUE, length(vars)))
+      vars <- vars[keep]
+    }
+    updateCheckboxGroupInput(session, "pr_vars", choices = vars)
+  }, ignoreInit = TRUE)
+
+  pr_result <- eventReactive(input$pr_run, {
+    ch <- pr_choices()
+    vars <- input$pr_vars
+    # Auto-select a small set if none chosen
+    if (length(vars) < 1) {
+      if (length(ch$vars) == 0) {
+        pr_status("No predictor variables found for this questionnaire (expecting pXX or numeric columns).")
+        showNotification("No predictor variables found.", type = "error")
+        return(NULL)
+      }
+      vars <- head(ch$vars, 10)
+      pr_status(sprintf("No variables selected. Auto-selected %d predictors.", length(vars)))
+    } else {
+      pr_status(sprintf("Selected %d predictors. Preparing data...", length(vars)))
+    }
+    if (is.null(ch$full_data)) { pr_status("Questionnaire full_data is not available."); showNotification("No full_data available for selected questionnaire.", type = "error"); return(NULL) }
+
+    fd <- ch$full_data
+    target <- if (isTRUE(input$pr_target_switch)) "L" else "M"
+    tcol <- if (target == "L") "medida500_L" else "medida500_M"
+    if (!(tcol %in% names(fd))) { pr_status(paste0("Target ", tcol, " not found in full_data.")); showNotification(sprintf("Target %s not found.", tcol), type = "error"); return(NULL) }
+
+    notif_id <- showNotification("Fitting GAM...", type = "message", duration = NULL)
+    on.exit(removeNotification(notif_id), add = TRUE)
+    prog <- shiny::Progress$new(min = 0, max = 1)
+    on.exit(prog$close(), add = TRUE)
+
+    prog$set(value = 0.10, message = "Building modeling frame")
+    keep_cols <- intersect(c(vars, tcol), names(fd))
+    if (length(keep_cols) < 2) { pr_status("Could not assemble modeling frame (no overlap of selected vars with data)."); showNotification("No overlap of selected variables with data.", type = "error"); return(NULL) }
+    df <- fd[, keep_cols, drop = FALSE]
+    n0 <- nrow(df)
+    df <- df[rowSums(is.na(df)) < ncol(df), , drop = FALSE]
+    pr_status(sprintf("Dropped %d rows with all-NA predictors/target. Remaining: %d", n0 - nrow(df), nrow(df)))
+    if (nrow(df) < 20) { pr_status("Not enough rows after NA filtering"); return(NULL) }
+
+    prog$set(value = 0.30, message = "Coercing types")
+    df[[tcol]] <- suppressWarnings(as.numeric(df[[tcol]]))
+    names(df)[names(df) == tcol] <- "Y"
+    # Determine numeric vs factor predictors, adapt k by unique levels
+    predictors <- setdiff(names(df), "Y")
+    is_num <- vapply(df[predictors], function(x) is.numeric(suppressWarnings(as.numeric(x))), logical(1))
+    num_vars0 <- names(is_num)[is_num]
+    fac_vars <- setdiff(predictors, num_vars0)
+    # Coerce baseline factors
+    for (v in fac_vars) df[[v]] <- as.factor(df[[v]])
+
+    # For numeric variables, compute unique counts and adaptively set k or coerce to factor if too few uniques
+    adj_s_terms <- c()
+    coerced_to_factor <- c()
+    kept_numeric <- c()
+    for (v in num_vars0) {
+      xv <- df[[v]]
+      u <- length(unique(xv[!is.na(xv)]))
+      if (u < 4) {
+        # treat as factor
+        df[[v]] <- as.factor(xv)
+        fac_vars <- c(fac_vars, v)
+        coerced_to_factor <- c(coerced_to_factor, sprintf("%s(u=%d)", v, u))
+      } else {
+        # k must be < unique and >=3
+        k_i <- min(6L, max(3L, u - 1L))
+        adj_s_terms <- c(adj_s_terms, sprintf("s(%s, k=%d)", v, k_i))
+        kept_numeric <- c(kept_numeric, sprintf("%s(u=%d,k=%d)", v, u, k_i))
+      }
+    }
+    pr_status(sprintf("Numeric (kept as smooth): %d | Coerced to factor: %d | Factor (original): %d",
+                      length(kept_numeric), length(coerced_to_factor), length(setdiff(fac_vars, names(is_num)[is_num]))))
+
+    prog$set(value = 0.55, message = "Building formula")
+    rhs <- c(if (length(adj_s_terms)) adj_s_terms else NULL,
+             if (length(fac_vars)) fac_vars else NULL)
+    if (!length(rhs)) { pr_status("No valid predictors after preprocessing."); return(NULL) }
+    form <- as.formula(paste("Y ~", paste(rhs, collapse = " + ")))
+    pr_status(paste("Formula:", deparse(form)))
+
+    prog$set(value = 0.80, message = "Fitting model (REML)")
+    t0 <- Sys.time()
+    fit <- tryCatch(mgcv::gam(form, data = df, method = "REML"), error = function(e) e)
+    if (inherits(fit, "error")) { pr_status(paste("Model error:", fit$message)); return(NULL) }
+    elapsed <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+
+    prog$set(value = 1.0, message = "Done")
+    pr_status(sprintf("Done in %.2fs. n=%d, p=%d. Use the tabs below for summary/plots.", elapsed, nrow(df), length(vars)))
+    # Return the vector of smooth terms for plotting count and elapsed time
+    list(fit = fit, form = form, num_vars = adj_s_terms, elapsed = elapsed, n = nrow(df), p = length(vars))
+  })
+
+  output$pr_status <- renderText({ pr_status() })
+
+  output$pr_summary <- renderPrint({
+    res <- pr_result(); if (is.null(res)) return(cat("No model fitted yet. Click 'Fit GAM'."))
+    cat("GAM formula:\n"); print(res$form)
+    if (!is.null(res$elapsed)) cat(sprintf("\nCompute time: %.2f s  |  n = %d  p = %d\n", res$elapsed, res$n %||% NA_integer_, res$p %||% NA_integer_))
+    cat("\nSummary:\n"); print(summary(res$fit))
+    cat("\nBasis dimension check (gam.check):\n"); print(try(gam.check(res$fit), silent = TRUE))
+  })
+
+  output$pr_plot <- renderPlot({
+    res <- pr_result(); if (is.null(res)) return()
+    fit <- res$fit
+    op <- par(no.readonly = TRUE)
+    on.exit(par(op))
+    par(mfrow = c(2,2))
+    try(gam.check(fit), silent = TRUE)
+    if (length(res$num_vars) > 0) {
+      par(mfrow = c(1, min(3, length(res$num_vars))))
+      for (i in seq_along(res$num_vars)) {
+        try(plot(fit, select = i, shade = TRUE, shade.col = "#c6dbef", col = "#08519c", seWithMean = TRUE), silent = TRUE)
+      }
+    }
+  })
 
   # Información de archivos
   output$file_info <- renderPrint({

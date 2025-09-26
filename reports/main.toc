@@ -1,0 +1,21 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}%
+\contentsline {section}{\numberline {2}Exploratory Data Analysis}{2}{section.2}%
+\contentsline {paragraph}{Findings.}{2}{section*.3}%
+\contentsline {section}{\numberline {3}Correlation Analysis}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Estudiante}{3}{subsection.3.1}%
+\contentsline {paragraph}{Findings.}{3}{section*.5}%
+\contentsline {subsection}{\numberline {3.2}Familia}{4}{subsection.3.2}%
+\contentsline {paragraph}{Findings.}{4}{section*.8}%
+\contentsline {subsection}{\numberline {3.3}Docente Tutor}{5}{subsection.3.3}%
+\contentsline {paragraph}{Findings.}{5}{section*.11}%
+\contentsline {subsection}{\numberline {3.4}Director F2}{6}{subsection.3.4}%
+\contentsline {paragraph}{Findings.}{6}{section*.14}%
+\contentsline {subsection}{\numberline {3.5}Docente Matemática}{7}{subsection.3.5}%
+\contentsline {paragraph}{Findings.}{7}{section*.17}%
+\contentsline {subsection}{\numberline {3.6}Docente Comunicación}{8}{subsection.3.6}%
+\contentsline {paragraph}{Findings.}{8}{section*.20}%
+\contentsline {section}{\numberline {4}Causal Discovery}{9}{section.4}%
+\contentsline {paragraph}{Gaussian CI tests.}{9}{section*.23}%
+\contentsline {paragraph}{Skeleton search.}{9}{section*.24}%
+\contentsline {paragraph}{Orientation.}{10}{section*.25}%
+\contentsline {paragraph}{Implementation details.}{10}{section*.26}%

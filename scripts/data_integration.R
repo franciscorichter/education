@@ -8,7 +8,6 @@ suppressPackageStartupMessages({
   library(purrr)
   library(stringr)
   library(tibble)
-  library(rlang)
 })
 
 # Resolve paths relative to this script's directory
@@ -132,16 +131,9 @@ load_em_data <- function() {
   cat("  🔧 Standardizing EM column names...\n")
   em_data <- standardize_column_names(em_data)
 
-  # Do NOT drop columns here; retain full EM dataset so downstream EDA/grouping can use extra variables
-  # (We still standardize names above and coerce L/M to numeric below.)
-
-  # Ensure column names are unique (some sources repeat names like ID_seccion)
-  if (any(duplicated(names(em_data)))) {
-    dups <- unique(names(em_data)[duplicated(names(em_data))])
-    warning("Duplicate column names detected in EM data: ", paste(dups, collapse = ", "), 
-            ". Making names unique to proceed.")
-    names(em_data) <- make.unique(names(em_data), sep = ".")
-  }
+  # Keep relevant columns
+  keep_cols <- intersect(c("ID_ESTUDIANTE", "cod_mod7", "anexo", "ID_seccion", "medida500_L", "medida500_M"), names(em_data))
+  em_data <- dplyr::select(em_data, dplyr::all_of(keep_cols))
 
   # Coerce scores to numeric
   if ("medida500_L" %in% names(em_data)) em_data$medida500_L <- suppressWarnings(as.numeric(em_data$medida500_L))
@@ -230,55 +222,6 @@ load_questionnaire_data <- function(xlsx_path) {
 
 # ===== INTEGRATION FUNCTIONS =====
 
-# Create EM summaries for different granularities
-aggregate_em_data <- function(em_data) {
-  # Ensure expected columns exist
-  required <- c("cod_mod7", "anexo", "ID_seccion", "ID_ESTUDIANTE", "medida500_L", "medida500_M")
-  missing <- setdiff(required, names(em_data))
-  if (length(missing) > 0) {
-    warning("EM data missing columns: ", paste(missing, collapse = ", "))
-  }
-
-  # Student-level (as-is)
-  em_student <- em_data
-
-  # Section-level aggregation (for Docentes)
-  have_section <- all(c("cod_mod7", "anexo", "ID_seccion") %in% names(em_data))
-  if (have_section) {
-    em_section <- em_data %>%
-      dplyr::group_by(.data$cod_mod7, .data$anexo, .data$ID_seccion) %>%
-      dplyr::summarise(
-        medida500_L = suppressWarnings(mean(.data$medida500_L, na.rm = TRUE)),
-        medida500_M = suppressWarnings(mean(.data$medida500_M, na.rm = TRUE)),
-        n_students = dplyr::n(),
-        .groups = "drop"
-      )
-  } else {
-    em_section <- tibble::tibble()
-  }
-
-  # Site-level aggregation (for Directores)
-  have_site <- all(c("cod_mod7", "anexo") %in% names(em_data))
-  if (have_site) {
-    em_site <- em_data %>%
-      dplyr::group_by(.data$cod_mod7, .data$anexo) %>%
-      dplyr::summarise(
-        medida500_L = suppressWarnings(mean(.data$medida500_L, na.rm = TRUE)),
-        medida500_M = suppressWarnings(mean(.data$medida500_M, na.rm = TRUE)),
-        n_students = dplyr::n(),
-        .groups = "drop"
-      )
-  } else {
-    em_site <- tibble::tibble()
-  }
-
-  list(
-    em_student = em_student,
-    em_section = em_section,
-    em_site = em_site
-  )
-}
-
 # Dynamic integration based on user-selected columns
 perform_dynamic_integration <- function(questionnaire_data, em_data, match_columns) {
   if (is.null(questionnaire_data) || is.null(em_data)) {
@@ -351,13 +294,8 @@ perform_dynamic_integration <- function(questionnaire_data, em_data, match_colum
 
   # Calculate match statistics
   total_rows <- nrow(questionnaire_data)
-  measure_cols <- intersect(c("medida500_L", "medida500_M"), names(result))
-  if (length(measure_cols) > 0) {
-    matched_rows <- sum(rowSums(!is.na(result[measure_cols])) > 0)
-  } else {
-    matched_rows <- 0L
-  }
-  match_rate <- if (total_rows > 0) matched_rows / total_rows else 0
+  matched_rows <- sum(!is.na(result$medida500_L) | !is.na(result$medida500_M))
+  match_rate <- matched_rows / total_rows
 
   cat(sprintf("  ✅ Integration completed: %d/%d matched (%.1f%%)\n",
               matched_rows, total_rows, match_rate * 100))
@@ -376,7 +314,7 @@ perform_dynamic_integration <- function(questionnaire_data, em_data, match_colum
 }
 
 # Perform comprehensive matching for all questionnaires
-perform_comprehensive_matching <- function(questionnaire_data, em_summaries) {
+perform_comprehensive_matching <- function(questionnaire_data, em_data) {
   cat("🔄 Performing comprehensive matching for all questionnaires...\n")
 
   results <- list()
@@ -396,23 +334,19 @@ perform_comprehensive_matching <- function(questionnaire_data, em_summaries) {
     if (grepl("estudiante|familia", q_lower)) {
       # Estudiante/Familia: Use ID_ESTUDIANTE
       match_cols <- "ID_ESTUDIANTE"
-      em_for_join <- em_summaries$em_student
-      cat("    🎯 Strategy: Estudiante/Familia -> ID_ESTUDIANTE (student-level EM)\n")
+      cat("    🎯 Strategy: Estudiante/Familia -> ID_ESTUDIANTE\n")
     } else if (grepl("docente", q_lower)) {
       # Docente: Use cod_mod7 + anexo + ID_seccion
       match_cols <- c("cod_mod7", "anexo", "ID_seccion")
-      em_for_join <- em_summaries$em_section
-      cat("    🎯 Strategy: Docente -> cod_mod7 + anexo + ID_seccion (section-level EM mean)\n")
+      cat("    🎯 Strategy: Docente -> cod_mod7 + anexo + ID_seccion\n")
     } else if (grepl("director", q_lower)) {
       # Director: Use cod_mod7 + anexo
       match_cols <- c("cod_mod7", "anexo")
-      em_for_join <- em_summaries$em_site
-      cat("    🎯 Strategy: Director -> cod_mod7 + anexo (site-level EM mean)\n")
+      cat("    🎯 Strategy: Director -> cod_mod7 + anexo\n")
     } else {
       # Default: Try ID_ESTUDIANTE first
       match_cols <- "ID_ESTUDIANTE"
-      em_for_join <- em_summaries$em_student
-      cat("    🎯 Strategy: Default -> ID_ESTUDIANTE (student-level EM)\n")
+      cat("    🎯 Strategy: Default -> ID_ESTUDIANTE\n")
     }
 
     # Check if all required columns exist
@@ -429,7 +363,7 @@ perform_comprehensive_matching <- function(questionnaire_data, em_summaries) {
     # Perform integration
     integration_result <- perform_dynamic_integration(
       q_data$full_data,
-      em_for_join,
+      em_data,
       available_cols
     )
 
@@ -466,8 +400,8 @@ run_enla_data_pipeline <- function() {
   # Step 2: Load questionnaire data
   cat("📥 STEP 2: Loading questionnaire data\n")
   cat("-----------------------------------\n")
-  xlsx_files <- list.files(DATA_DIR, pattern = "ENLA.*\\.xlsx$", full.names = TRUE, ignore.case = TRUE)
-  xlsx_files <- xlsx_files[!grepl("EM_", basename(xlsx_files), ignore.case = TRUE)]  # Exclude EM file
+  xlsx_files <- list.files(DATA_DIR, pattern = "(?i)ENLA.*\\.xlsx$", full.names = TRUE)
+  xlsx_files <- xlsx_files[!grepl("(?i)EM_", basename(xlsx_files))]  # Exclude EM file
 
   cat(sprintf("  📋 Found %d questionnaire files\n", length(xlsx_files)))
 
@@ -501,56 +435,7 @@ run_enla_data_pipeline <- function() {
   # Step 3: Perform comprehensive matching
   cat("🔗 STEP 3: Performing comprehensive matching\n")
   cat("------------------------------------------\n")
-  # Build EM summaries at required granularities
-  em_summaries <- aggregate_em_data(em_data)
-  integration_results <- perform_comprehensive_matching(questionnaire_data, em_summaries)
-  cat("\n")
-
-  # Step 3b: Append EM columns into each questionnaire's full_data and export CSVs
-  cat("🧩 STEP 3b: Appending EM averages into questionnaire full_data and exporting CSVs\n")
-  cat("--------------------------------------------------------------------------------\n")
-  integrated_dir <- file.path(OUTPUT_DIR, "integrated")
-  dir.create(integrated_dir, recursive = TRUE, showWarnings = FALSE)
-
-  for (q_name in names(integration_results)) {
-    res <- integration_results[[q_name]]
-    if (!isTRUE(res$success)) next
-
-    df_joined <- res$integrated_data
-    # Overwrite questionnaire full_data with integrated version (now includes EM averages)
-    if (!is.null(questionnaire_data[[q_name]]) && !is.null(questionnaire_data[[q_name]]$full_data)) {
-      questionnaire_data[[q_name]]$full_data <- df_joined
-    }
-
-    # Export CSV with a compact set plus all items
-    em_cols <- intersect(c("medida500_L", "medida500_M", "n_students"), names(df_joined))
-    id_cols <- intersect(c("ID_ESTUDIANTE", "cod_mod7", "anexo", "ID_seccion"), names(df_joined))
-    p_cols <- grep("^(p\\d{2})(_\\d{2})?$", names(df_joined), ignore.case = TRUE, value = TRUE)
-    export_cols <- unique(c(id_cols, em_cols, p_cols))
-
-    out_path <- file.path(integrated_dir, paste0(q_name, "_integrated.csv"))
-    readr::write_csv(df_joined[, export_cols, drop = FALSE], out_path)
-
-    # Verbose diagnostics
-    total_rows <- res$total_rows
-    matched_rows <- res$matched_rows
-    match_rate <- res$match_rate
-    cat(sprintf("  📄 %s: %d rows | matched %d (%.1f%%) | saved -> %s\n",
-                q_name, total_rows, matched_rows, match_rate * 100, out_path))
-
-    # Show a short sample of rows without EM (if any) to aid debugging
-    measure_cols <- intersect(c("medida500_L", "medida500_M"), names(df_joined))
-    if (length(measure_cols) > 0) {
-      no_em <- df_joined[rowSums(is.na(df_joined[measure_cols])) == length(measure_cols), ]
-      if (nrow(no_em) > 0) {
-        cat(sprintf("    ⚠️  %d rows without EM after integration (showing up to 3):\n", nrow(no_em)))
-        show_cols <- unique(c(id_cols, measure_cols))
-        print(utils::head(no_em[, show_cols, drop = FALSE], 3))
-      } else {
-        cat("    ✅ All rows have EM values (at least one of L/M)\n")
-      }
-    }
-  }
+  integration_results <- perform_comprehensive_matching(questionnaire_data, em_data)
   cat("\n")
 
   # Step 4: Create comprehensive results
@@ -595,8 +480,6 @@ run_enla_data_pipeline <- function() {
     version = CACHE_VERSION
   )
 
-  # Ensure output directory exists before saving
-  dir.create(OUTPUT_DIR, recursive = TRUE, showWarnings = FALSE)
   saveRDS(result, file.path(OUTPUT_DIR, "enla_processed_data.rds"))
   cat("  💾 Saved comprehensive data to: data/enla_processed_data.rds\n")
   cat("\n")
