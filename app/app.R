@@ -18,12 +18,14 @@ suppressPackageStartupMessages({
   library(mgcv)
   library(shinyWidgets)
   suppressWarnings(suppressPackageStartupMessages(require(pcalg, quietly = TRUE)))
+  suppressWarnings(suppressPackageStartupMessages(require(glasso, quietly = TRUE)))
 })
 
 # ===== CARGAR DATOS =====
 
 # Obtener el directorio donde está este script
 get_script_dir <- function() {
+{{ ... }}
   tryCatch({
     if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
       return(normalizePath(dirname(rstudioapi::getActiveDocumentContext()$path), mustWork = TRUE))
@@ -614,7 +616,7 @@ ui <- fluidPage(
         tabsetPanel(
           id = "am_tabs",
           tabPanel(
-            title = "Estimation",
+            title = "PC",
             value = "am_estimation",
             wellPanel(
               fluidRow(
@@ -626,6 +628,11 @@ ui <- fluidPage(
                 ),
                 column(4,
                   switchInput(inputId = "am_target_switch", label = "Target: L / M", value = TRUE, onLabel = "L", offLabel = "M")
+                )
+              ),
+              fluidRow(
+                column(4,
+                  sliderInput("am_mmax", "Max conditioning set size (m.max):", min = 0, max = 6, value = 3, step = 1, width = "100%")
                 )
               ),
               h5("Variables"),
@@ -645,7 +652,7 @@ ui <- fluidPage(
             )
           ),
           tabPanel(
-            title = "Prediction",
+            title = "GAM",
             value = "am_prediction",
             h4("Prediction — Generalized Additive Model (GAM)"),
             wellPanel(
@@ -670,6 +677,32 @@ ui <- fluidPage(
               column(6,
                      h5("Diagnostics / partial effects"),
                      plotOutput("pr_plot", height = "520px")
+              )
+            )
+          ),
+          tabPanel(
+            title = "GL",
+            value = "am_gl",
+            h4("Graphical Lasso (GL) — Sparse Gaussian Graphical Model"),
+            wellPanel(
+              fluidRow(
+                column(4,
+                  selectInput("gl_q", "Questionnaire:", choices = am_select_choices, selected = if (length(questionnaire_ids_ordered)>0) questionnaire_ids_ordered[1] else NULL, width = "100%")
+                ),
+                column(4,
+                  sliderInput("gl_lambda", "Regularization (rho):", min = 0.01, max = 0.5, value = 0.10, step = 0.01, width = "100%")
+                ),
+                column(4, br(), actionButton("gl_run", "Run Graphical Lasso", class = "btn btn-primary", width = "100%"))
+              ),
+              h5("Variables"),
+              uiOutput("gl_var_ui"),
+              div(class = "muted", style = "margin-top:6px;", textOutput("gl_status"))
+            ),
+            fluidRow(
+              column(7, plotOutput("gl_plot", height = "580px")),
+              column(5,
+                h5("Edges"),
+                DTOutput("gl_edges_table")
               )
             )
           )
@@ -796,15 +829,16 @@ server <- function(input, output, session) {
     t0 <- Sys.time(); am_status("Running PC algorithm...")
 
     prog$set(value = 0.8, message = "PC search")
+    mm <- if (is.null(input$am_mmax) || is.na(input$am_mmax)) Inf else as.integer(input$am_mmax)
     g <- tryCatch(pcalg::pc(suffStat = suffStat, indepTest = pcalg::gaussCItest,
-                             alpha = alpha, labels = colnames(X), verbose = FALSE), error = function(e) e)
+                             alpha = alpha, labels = colnames(X), verbose = FALSE, m.max = mm), error = function(e) e)
     if (inherits(g, "error")) return(list(error = paste("PC error:", g$message)))
     amat <- as(g@graph, "matrix")
     edges <- which(amat != 0, arr.ind = TRUE)
     edge_df <- tibble::tibble(from = rownames(amat)[edges[,1]], to = colnames(amat)[edges[,2]])
     elapsed <- difftime(Sys.time(), t0, units = "secs")
     prog$set(value = 1, message = "Done")
-    am_status(paste0("Done in ", round(as.numeric(elapsed), 2), "s (n=", nrow(X), ", p=", ncol(X), ")"))
+    am_status(paste0("Done in ", round(as.numeric(elapsed), 2), "s (n=", nrow(X), ", p=", ncol(X), ", m.max=", ifelse(is.finite(mm), mm, NA), ")"))
     list(graph = g, edges = edge_df)
   })
 
@@ -1006,6 +1040,153 @@ server <- function(input, output, session) {
         try(plot(fit, select = i, shade = TRUE, shade.col = "#c6dbef", col = "#08519c", seWithMean = TRUE), silent = TRUE)
       }
     }
+  })
+
+  # ===== Advanced Modeling: Graphical Lasso (GL) =====
+  gl_status <- reactiveVal("")
+
+  gl_choices <- reactive({
+    sel <- input$gl_q
+    if (is.null(sel) || !(sel %in% questionnaire_names)) return(list(vars = character(0), data = NULL))
+    q <- enla_data$questionnaire_data[[sel]]
+    if (is.null(q) || !q$success) return(list(vars = character(0), data = NULL))
+    X <- q$data
+    nms <- colnames(X); if (is.null(nms)) nms <- character(0)
+    vars <- grep("^p\\d{1,2}(_\\d{1,2})?$", nms, ignore.case = TRUE, value = TRUE)
+    if (length(vars) == 0) {
+      num_cols <- names(X)[vapply(X, is.numeric, logical(1))]
+      vars <- num_cols
+    }
+    list(vars = vars, data = X)
+  })
+
+  output$gl_var_ui <- renderUI({
+    ch <- gl_choices(); vars <- ch$vars
+    tagList(
+      fluidRow(
+        column(6, textInput("gl_filter", "Filter items (regex):", value = "", placeholder = "e.g., ^p2[0-9]_|_01$")),
+        column(3, br(), actionButton("gl_sel_all", "Select all", class = "btn btn-light btn-sm", width = "100%")),
+        column(3, br(), actionButton("gl_sel_none", "Clear all", class = "btn btn-light btn-sm", width = "100%"))
+      ),
+      div(class = "muted", if (length(vars) > 0) paste0(length(vars), " variables detected") else "No variables detected"),
+      div(style = "max-height: 260px; overflow-y: auto; border: 1px solid #e5e7eb; padding: 8px;",
+          checkboxGroupInput("gl_vars", NULL, choices = vars, selected = character(0), inline = FALSE))
+    )
+  })
+
+  observeEvent(input$gl_sel_all, {
+    ch <- gl_choices(); vars <- ch$vars
+    if (!is.null(input$gl_filter) && nzchar(input$gl_filter)) {
+      keep <- tryCatch(grepl(input$gl_filter, vars), error = function(e) rep(TRUE, length(vars)))
+      vars <- vars[keep]
+    }
+    updateCheckboxGroupInput(session, "gl_vars", selected = vars)
+  })
+
+  observeEvent(input$gl_sel_none, {
+    updateCheckboxGroupInput(session, "gl_vars", selected = character(0))
+  })
+
+  observeEvent(input$gl_filter, {
+    ch <- gl_choices(); vars <- ch$vars
+    if (!is.null(input$gl_filter) && nzchar(input$gl_filter)) {
+      keep <- tryCatch(grepl(input$gl_filter, vars), error = function(e) rep(TRUE, length(vars)))
+      vars <- vars[keep]
+    }
+    updateCheckboxGroupInput(session, "gl_vars", choices = vars)
+  }, ignoreInit = TRUE)
+
+  gl_result <- eventReactive(input$gl_run, {
+    if (!requireNamespace("glasso", quietly = TRUE)) {
+      gl_status("Package 'glasso' is required. Please install.packages('glasso').")
+      return(NULL)
+    }
+    ch <- gl_choices(); vars <- input$gl_vars
+    if (length(vars) < 2 || is.null(ch$data)) { gl_status("Select at least 2 variables"); return(NULL) }
+    X <- dplyr::select(ch$data, dplyr::all_of(vars))
+    # Remove rows with all NA; impute remaining NA with column means
+    X <- X[rowSums(is.na(X)) < ncol(X), , drop = FALSE]
+    if (nrow(X) < 10) { gl_status("Not enough rows after NA filtering"); return(NULL) }
+    X[] <- lapply(X, function(col) suppressWarnings(as.numeric(col)))
+    for (j in seq_len(ncol(X))) {
+      m <- mean(X[[j]], na.rm = TRUE); if (is.na(m)) m <- 0
+      idx <- which(is.na(X[[j]])); if (length(idx) > 0) X[[j]][idx] <- m
+    }
+    # Filter zero-variance columns
+    sds <- vapply(X, function(x) sd(x, na.rm = TRUE), numeric(1))
+    keep <- names(sds)[sds > 0 & !is.na(sds)]
+    X <- dplyr::select(X, dplyr::all_of(keep))
+    if (ncol(X) < 2) { gl_status("All selected variables have zero variance"); return(NULL) }
+
+    rho <- if (is.null(input$gl_lambda)) 0.10 else as.numeric(input$gl_lambda)
+    gl_status(sprintf("Running GL on n=%d, p=%d (rho=%.3f)...", nrow(X), ncol(X), rho))
+    notif_id <- showNotification("Running Graphical Lasso...", type = "message", duration = NULL)
+    on.exit(removeNotification(notif_id), add = TRUE)
+    prog <- shiny::Progress$new(min = 0, max = 1)
+    on.exit(prog$close(), add = TRUE)
+    prog$set(value = 0.3, message = "Computing covariance")
+    S <- stats::cov(X)
+    prog$set(value = 0.6, message = "Solving glasso")
+    fit <- tryCatch(glasso::glasso(S, rho = rho), error = function(e) e)
+    if (inherits(fit, "error")) { gl_status(paste("glasso error:", fit$message)); return(NULL) }
+    Theta <- fit$wi
+    # Build adjacency from non-zero off-diagonals in precision matrix
+    adj <- (abs(Theta) > .Machine$double.eps)
+    diag(adj) <- FALSE
+    edges <- which(adj, arr.ind = TRUE)
+    if (nrow(edges) > 0) edges <- edges[edges[,1] < edges[,2], , drop = FALSE]
+    edge_df <- tibble::tibble(
+      from = colnames(Theta)[edges[,1]],
+      to   = colnames(Theta)[edges[,2]],
+      weight = abs(Theta[edges])
+    )
+    gl_status(sprintf("Done. Edges: %d", nrow(edge_df)))
+    list(Theta = Theta, edges = edge_df)
+  })
+
+  output$gl_status <- renderText({ gl_status() })
+
+  output$gl_plot <- renderPlot({
+    res <- gl_result(); if (is.null(res)) return()
+    Theta <- res$Theta
+    node_names <- colnames(Theta)
+    # Group by top code if pattern present
+    groups <- stringr::str_match(node_names, "^(p\\d{2})")[,2]
+    groups[is.na(groups)] <- node_names[is.na(groups)]
+    df_nodes <- tibble::tibble(name = node_names, group = groups)
+    adj <- (abs(Theta) > .Machine$double.eps); diag(adj) <- FALSE
+    edges <- which(adj, arr.ind = TRUE)
+    if (nrow(edges) > 0) edges <- edges[edges[,1] < edges[,2], , drop = FALSE]
+    df_edges <- tibble::tibble(
+      from = node_names[edges[,1]],
+      to   = node_names[edges[,2]],
+      weight = abs(Theta[edges])
+    )
+    if (nrow(df_edges) == 0) { plot.new(); title("No edges selected by GL"); return() }
+    G <- igraph::graph_from_data_frame(df_edges, directed = FALSE, vertices = df_nodes)
+    base_pal <- RColorBrewer::brewer.pal(8, "Set2")
+    palette <- grDevices::colorRampPalette(base_pal)(max(8, length(unique(df_nodes$group))))
+    col_map <- setNames(rep(palette, length.out = length(unique(df_nodes$group))), sort(unique(df_nodes$group)))
+    V(G)$color <- col_map[V(G)$group]
+    E(G)$weight <- df_edges$weight
+    set.seed(123)
+    coords <- igraph::layout_with_fr(G)
+    plot(G,
+         layout = coords,
+         vertex.size = 10,
+         vertex.label.cex = 0.7,
+         edge.width = scales::rescale(E(G)$weight, to = c(0.5, 3)),
+         edge.color = rgb(0.2,0.2,0.2,0.3),
+         main = sprintf("Graphical Lasso (rho=%.2f)", ifelse(is.null(input$gl_lambda), 0.10, input$gl_lambda)))
+    legend("topleft", legend = names(col_map), col = unname(col_map), pch = 16, bty = "n", ncol = 2, title = "Group")
+  })
+
+  output$gl_edges_table <- renderDT({
+    res <- gl_result(); if (is.null(res)) return(datatable(data.frame()))
+    df <- res$edges
+    if (is.null(df) || nrow(df) == 0) return(datatable(data.frame(Info = "No edges"), rownames = FALSE))
+    df <- dplyr::arrange(df, dplyr::desc(.data$weight))
+    datatable(df, options = list(pageLength = 10, scrollX = TRUE, order = list(list(2, 'desc'))), rownames = FALSE)
   })
 
   # Información de archivos

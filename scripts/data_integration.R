@@ -131,9 +131,8 @@ load_em_data <- function() {
   cat("  🔧 Standardizing EM column names...\n")
   em_data <- standardize_column_names(em_data)
 
-  # Keep relevant columns
-  keep_cols <- intersect(c("ID_ESTUDIANTE", "cod_mod7", "anexo", "ID_seccion", "medida500_L", "medida500_M"), names(em_data))
-  em_data <- dplyr::select(em_data, dplyr::all_of(keep_cols))
+  # Keep ALL columns to preserve potential weights and metadata
+  # (Previously we pruned to a subset. This was removed to retain full EM dataset.)
 
   # Coerce scores to numeric
   if ("medida500_L" %in% names(em_data)) em_data$medida500_L <- suppressWarnings(as.numeric(em_data$medida500_L))
