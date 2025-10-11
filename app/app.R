@@ -25,7 +25,6 @@ suppressPackageStartupMessages({
 
 # Obtener el directorio donde está este script
 get_script_dir <- function() {
-{{ ... }}
   tryCatch({
     if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
       return(normalizePath(dirname(rstudioapi::getActiveDocumentContext()$path), mustWork = TRUE))
@@ -1096,13 +1095,29 @@ server <- function(input, output, session) {
     updateCheckboxGroupInput(session, "gl_vars", choices = vars)
   }, ignoreInit = TRUE)
 
+  observeEvent(input$gl_q, {
+    # When questionnaire changes, refresh choices and clear status/selection
+    gl_status("")
+    ch <- gl_choices(); vars <- ch$vars
+    updateCheckboxGroupInput(session, "gl_vars", choices = vars, selected = character(0))
+  }, ignoreInit = TRUE)
+
   gl_result <- eventReactive(input$gl_run, {
     if (!requireNamespace("glasso", quietly = TRUE)) {
       gl_status("Package 'glasso' is required. Please install.packages('glasso').")
       return(NULL)
     }
     ch <- gl_choices(); vars <- input$gl_vars
-    if (length(vars) < 2 || is.null(ch$data)) { gl_status("Select at least 2 variables"); return(NULL) }
+    # Auto-select a small set if none chosen
+    if (length(vars) < 2) {
+      if (length(ch$vars) < 2) { gl_status("No suitable variables found in this questionnaire."); return(NULL) }
+      vars <- head(ch$vars, min(15, length(ch$vars)))
+      updateCheckboxGroupInput(session, "gl_vars", selected = vars)
+      gl_status(sprintf("No variables selected. Auto-selected %d variables.", length(vars)))
+    } else {
+      gl_status(sprintf("Selected %d variables. Preparing data...", length(vars)))
+    }
+    if (is.null(ch$data)) { gl_status("Questionnaire data not available."); return(NULL) }
     X <- dplyr::select(ch$data, dplyr::all_of(vars))
     # Remove rows with all NA; impute remaining NA with column means
     X <- X[rowSums(is.na(X)) < ncol(X), , drop = FALSE]
@@ -1147,7 +1162,8 @@ server <- function(input, output, session) {
   output$gl_status <- renderText({ gl_status() })
 
   output$gl_plot <- renderPlot({
-    res <- gl_result(); if (is.null(res)) return()
+    res <- gl_result()
+    if (is.null(res)) { plot.new(); title("GL: no result yet. Click 'Run Graphical Lasso'."); return() }
     Theta <- res$Theta
     node_names <- colnames(Theta)
     # Group by top code if pattern present
