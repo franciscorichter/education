@@ -1157,11 +1157,23 @@ server <- function(input, output, session) {
     diag(adj) <- FALSE
     edges <- which(adj, arr.ind = TRUE)
     if (nrow(edges) > 0) edges <- edges[edges[,1] < edges[,2], , drop = FALSE]
-    edge_df <- tibble::tibble(
-      from = colnames(Theta)[edges[,1]],
-      to   = colnames(Theta)[edges[,2]],
-      weight = abs(Theta[edges])
-    )
+    
+    # Extract weights properly using matrix indexing
+    if (nrow(edges) > 0) {
+      weights <- numeric(nrow(edges))
+      for (i in seq_len(nrow(edges))) {
+        weights[i] <- abs(Theta[edges[i, 1], edges[i, 2]])
+      }
+      edge_df <- data.frame(
+        from = colnames(Theta)[edges[,1]],
+        to   = colnames(Theta)[edges[,2]],
+        weight = weights,
+        stringsAsFactors = FALSE
+      )
+    } else {
+      edge_df <- data.frame(from = character(0), to = character(0), weight = numeric(0), stringsAsFactors = FALSE)
+    }
+    
     gl_status(sprintf("Done. Edges: %d", nrow(edge_df)))
     list(Theta = Theta, edges = edge_df)
   })
@@ -1176,15 +1188,27 @@ server <- function(input, output, session) {
     # Group by top code if pattern present
     groups <- stringr::str_match(node_names, "^(p\\d{2})")[,2]
     groups[is.na(groups)] <- node_names[is.na(groups)]
-    df_nodes <- tibble::tibble(name = node_names, group = groups)
+    df_nodes <- data.frame(name = node_names, group = groups, stringsAsFactors = FALSE)
     adj <- (abs(Theta) > .Machine$double.eps); diag(adj) <- FALSE
     edges <- which(adj, arr.ind = TRUE)
     if (nrow(edges) > 0) edges <- edges[edges[,1] < edges[,2], , drop = FALSE]
-    df_edges <- tibble::tibble(
-      from = node_names[edges[,1]],
-      to   = node_names[edges[,2]],
-      weight = abs(Theta[edges])
-    )
+    
+    # Extract weights properly using matrix indexing
+    if (nrow(edges) > 0) {
+      weights <- numeric(nrow(edges))
+      for (i in seq_len(nrow(edges))) {
+        weights[i] <- abs(Theta[edges[i, 1], edges[i, 2]])
+      }
+      df_edges <- data.frame(
+        from = node_names[edges[,1]],
+        to   = node_names[edges[,2]],
+        weight = weights,
+        stringsAsFactors = FALSE
+      )
+    } else {
+      df_edges <- data.frame(from = character(0), to = character(0), weight = numeric(0), stringsAsFactors = FALSE)
+    }
+    
     if (nrow(df_edges) == 0) { plot.new(); title("No edges selected by GL"); return() }
     # Limit edges to top weights for plotting to avoid overplotting
     max_e <- if (is.null(input$gl_max_edges_plot)) 300 else as.integer(input$gl_max_edges_plot)
@@ -1214,29 +1238,62 @@ server <- function(input, output, session) {
   })
 
   output$gl_summary <- renderPrint({
-    res <- gl_result(); if (is.null(res)) { cat("No GL result yet."); return() }
-    Theta <- res$Theta; edges <- res$edges
-    p <- ncol(Theta); m <- nrow(edges)
-    deg <- if (p > 0) sort(igraph::degree(igraph::graph_from_data_frame(edges, directed = FALSE, vertices = data.frame(name = colnames(Theta)))), decreasing = TRUE) else numeric(0)
+    res <- gl_result()
+    if (is.null(res)) { cat("No GL result yet."); return() }
+    
+    Theta <- res$Theta
+    edges <- res$edges
+    p <- ncol(Theta)
+    m <- nrow(edges)
+    
     cat(sprintf("Nodes: %d\nEdges: %d\n", p, m))
-    if (length(deg)) {
-      cat("Top degrees:\n");
-      print(head(deg, 15))
+    
+    if (m > 0 && p > 0) {
+      # Build graph for degree calculation
+      edge_df <- data.frame(
+        from = as.character(edges$from),
+        to = as.character(edges$to),
+        stringsAsFactors = FALSE
+      )
+      node_df <- data.frame(name = colnames(Theta), stringsAsFactors = FALSE)
+      g_summary <- tryCatch(
+        igraph::graph_from_data_frame(edge_df, directed = FALSE, vertices = node_df),
+        error = function(e) NULL
+      )
+      
+      if (!is.null(g_summary)) {
+        deg <- sort(igraph::degree(g_summary), decreasing = TRUE)
+        dens <- igraph::graph.density(g_summary, loops = FALSE)
+        cat(sprintf("Density: %.4f\n", dens))
+        cat("\nTop degrees:\n")
+        print(head(deg, 15))
+      }
     }
   })
 
   output$gl_edges_table <- renderDT({
-    res <- gl_result(); if (is.null(res)) return(datatable(as.data.frame(matrix(numeric(0), nrow = 0, ncol = 2)), rownames = FALSE))
-    df <- res$edges
-    if (is.null(df) || nrow(df) == 0) return(datatable(as.data.frame(data.frame(Info = "No edges", stringsAsFactors = FALSE)), rownames = FALSE))
-    df <- dplyr::arrange(df, dplyr::desc(.data$weight))
-    df$from <- as.character(df$from)
-    df$to <- as.character(df$to)
-    df <- as.data.frame(df)
-    if (ncol(df) < 2) {
-      return(datatable(as.data.frame(data.frame(Info = "Edges table unavailable", stringsAsFactors = FALSE)), rownames = FALSE))
+    res <- gl_result()
+    if (is.null(res)) {
+      return(datatable(data.frame(Info = "No result yet", stringsAsFactors = FALSE), rownames = FALSE))
     }
-    datatable(df, options = list(pageLength = 10, scrollX = TRUE, order = list(list(2, 'desc'))), rownames = FALSE)
+    
+    edge_tbl <- res$edges
+    if (is.null(edge_tbl) || nrow(edge_tbl) == 0) {
+      return(datatable(data.frame(Info = "No edges", stringsAsFactors = FALSE), rownames = FALSE))
+    }
+    
+    # Convert tibble to data.frame explicitly
+    df <- data.frame(
+      from = as.character(edge_tbl$from),
+      to = as.character(edge_tbl$to),
+      weight = as.numeric(edge_tbl$weight),
+      stringsAsFactors = FALSE
+    )
+    
+    # Sort by weight descending
+    df <- df[order(-df$weight), ]
+    
+    datatable(df, options = list(pageLength = 10, scrollX = TRUE), rownames = FALSE)
   })
 
   # Información de archivos
