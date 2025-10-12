@@ -691,17 +691,24 @@ ui <- fluidPage(
                 column(4,
                   sliderInput("gl_lambda", "Regularization (rho):", min = 0.01, max = 0.5, value = 0.10, step = 0.01, width = "100%")
                 ),
-                column(4, br(), actionButton("gl_run", "Run Graphical Lasso", class = "btn btn-primary", width = "100%"))
+                column(4,
+                  sliderInput("gl_max_edges_plot", "Max edges to plot:", min = 50, max = 2000, value = 300, step = 50, width = "100%"),
+                  actionButton("gl_run", "Run Graphical Lasso", class = "btn btn-primary", width = "100%")
+                )
               ),
               h5("Variables"),
               uiOutput("gl_var_ui"),
               div(class = "muted", style = "margin-top:6px;", textOutput("gl_status"))
             ),
             fluidRow(
-              column(7, plotOutput("gl_plot", height = "580px")),
+              column(7,
+                plotOutput("gl_plot", height = "580px")
+              ),
               column(5,
                 h5("Edges"),
-                DTOutput("gl_edges_table")
+                DTOutput("gl_edges_table"),
+                h5("Summary"),
+                verbatimTextOutput("gl_summary")
               )
             )
           )
@@ -1179,29 +1186,56 @@ server <- function(input, output, session) {
       weight = abs(Theta[edges])
     )
     if (nrow(df_edges) == 0) { plot.new(); title("No edges selected by GL"); return() }
-    G <- igraph::graph_from_data_frame(df_edges, directed = FALSE, vertices = df_nodes)
+    # Limit edges to top weights for plotting to avoid overplotting
+    max_e <- if (is.null(input$gl_max_edges_plot)) 300 else as.integer(input$gl_max_edges_plot)
+    df_edges <- dplyr::arrange(df_edges, dplyr::desc(.data$weight))
+    if (nrow(df_edges) > max_e) df_edges <- df_edges[seq_len(max_e), , drop = FALSE]
+    # Keep only nodes that appear in the selected edge set for plotting
+    used_nodes <- sort(unique(c(df_edges$from, df_edges$to)))
+    df_nodes_plot <- dplyr::filter(df_nodes, .data$name %in% used_nodes)
+    G <- igraph::graph_from_data_frame(df_edges, directed = FALSE, vertices = df_nodes_plot)
     base_pal <- RColorBrewer::brewer.pal(8, "Set2")
-    palette <- grDevices::colorRampPalette(base_pal)(max(8, length(unique(df_nodes$group))))
-    col_map <- setNames(rep(palette, length.out = length(unique(df_nodes$group))), sort(unique(df_nodes$group)))
+    palette <- grDevices::colorRampPalette(base_pal)(max(8, length(unique(df_nodes_plot$group))))
+    col_map <- setNames(rep(palette, length.out = length(unique(df_nodes_plot$group))), sort(unique(df_nodes_plot$group)))
     V(G)$color <- col_map[V(G)$group]
     E(G)$weight <- df_edges$weight
     set.seed(123)
     coords <- igraph::layout_with_fr(G)
-    plot(G,
-         layout = coords,
-         vertex.size = 10,
-         vertex.label.cex = 0.7,
-         edge.width = scales::rescale(E(G)$weight, to = c(0.5, 3)),
-         edge.color = rgb(0.2,0.2,0.2,0.3),
-         main = sprintf("Graphical Lasso (rho=%.2f)", ifelse(is.null(input$gl_lambda), 0.10, input$gl_lambda)))
-    legend("topleft", legend = names(col_map), col = unname(col_map), pch = 16, bty = "n", ncol = 2, title = "Group")
+    try({
+      plot(G,
+           layout = coords,
+           vertex.size = 10,
+           vertex.label.cex = 0.7,
+           edge.width = scales::rescale(E(G)$weight, to = c(0.5, 3)),
+           edge.color = rgb(0.2,0.2,0.2,0.3),
+           main = sprintf("Graphical Lasso (rho=%.2f) — plotted edges: %d", ifelse(is.null(input$gl_lambda), 0.10, input$gl_lambda), igraph::ecount(G)))
+      legend("topleft", legend = names(col_map), col = unname(col_map), pch = 16, bty = "n", ncol = 2, title = "Group")
+    }, silent = TRUE)
+  })
+
+  output$gl_summary <- renderPrint({
+    res <- gl_result(); if (is.null(res)) { cat("No GL result yet."); return() }
+    Theta <- res$Theta; edges <- res$edges
+    p <- ncol(Theta); m <- nrow(edges)
+    deg <- if (p > 0) sort(igraph::degree(igraph::graph_from_data_frame(edges, directed = FALSE, vertices = data.frame(name = colnames(Theta)))), decreasing = TRUE) else numeric(0)
+    cat(sprintf("Nodes: %d\nEdges: %d\n", p, m))
+    if (length(deg)) {
+      cat("Top degrees:\n");
+      print(head(deg, 15))
+    }
   })
 
   output$gl_edges_table <- renderDT({
-    res <- gl_result(); if (is.null(res)) return(datatable(data.frame()))
+    res <- gl_result(); if (is.null(res)) return(datatable(as.data.frame(matrix(numeric(0), nrow = 0, ncol = 2)), rownames = FALSE))
     df <- res$edges
-    if (is.null(df) || nrow(df) == 0) return(datatable(data.frame(Info = "No edges"), rownames = FALSE))
+    if (is.null(df) || nrow(df) == 0) return(datatable(as.data.frame(data.frame(Info = "No edges", stringsAsFactors = FALSE)), rownames = FALSE))
     df <- dplyr::arrange(df, dplyr::desc(.data$weight))
+    df$from <- as.character(df$from)
+    df$to <- as.character(df$to)
+    df <- as.data.frame(df)
+    if (ncol(df) < 2) {
+      return(datatable(as.data.frame(data.frame(Info = "Edges table unavailable", stringsAsFactors = FALSE)), rownames = FALSE))
+    }
     datatable(df, options = list(pageLength = 10, scrollX = TRUE, order = list(list(2, 'desc'))), rownames = FALSE)
   })
 

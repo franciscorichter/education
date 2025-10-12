@@ -262,18 +262,18 @@ write_latex_report_bilingual <- function(df_es, df_en, out_tex) {
 
     lines <- c(lines, paste0("\\section*{", esc(item), "}"))
     lines <- c(lines, "\\begin{tabularx}{\\textwidth}{YY}")
-      lines <- c(lines, "\\textbf{Pregunta (ES)} & \\textbf{Question (EN)} \\\")
+      lines <- c(lines, "\\textbf{Pregunta (ES)} & \\textbf{Question (EN)} \\")
     lines <- c(lines, paste0(esc(q_es), " & ", esc(q_en), " \\\\"))
     # Sub-items
     if (!is.null(subs_es) && length(subs_es) > 0 || !is.null(subs_en) && length(subs_en) > 0) {
-        lines <- c(lines, "\\multicolumn{2}{l}{\\textbf{Sub-items}} \\\")
+        lines <- c(lines, "\\multicolumn{2}{l}{\\textbf{Sub-items}} \\")
       left <- if (length(subs_es) > 0) paste0("\\begin{itemize}[leftmargin=*]", paste0("\\item ", esc(subs_es), collapse = "\n"), "\\end{itemize}") else ""
       right <- if (length(subs_en) > 0) paste0("\\begin{itemize}[leftmargin=*]", paste0("\\item ", esc(subs_en), collapse = "\n"), "\\end{itemize}") else ""
       lines <- c(lines, paste0(left, " & ", right, " \\\\"))
     }
     # Options
     if (!is.null(opts_es) && length(opts_es) > 0 || !is.null(opts_en) && length(opts_en) > 0) {
-        lines <- c(lines, "\\multicolumn{2}{l}{\\textbf{Options / Opciones}} \\\")
+        lines <- c(lines, "\\multicolumn{2}{l}{\\textbf{Options / Opciones}} \\")
       left <- if (length(opts_es) > 0) paste0("\\begin{itemize}[leftmargin=*]", paste0("\\item ", esc(opts_es), collapse = "\n"), "\\end{itemize}") else ""
       right <- if (length(opts_en) > 0) paste0("\\begin{itemize}[leftmargin=*]", paste0("\\item ", esc(opts_en), collapse = "\n"), "\\end{itemize}") else ""
       lines <- c(lines, paste0(left, " & ", right, " \\\\"))

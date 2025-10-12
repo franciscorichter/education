@@ -1,0 +1,680 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{ragged2e}
+\setlength{\parindent}{0pt}
+\sloppy
+\newcolumntype{L}{>{\RaggedRight\arraybackslash}p{0.48\textwidth}}
+\begin{document}
+\newpage
+\begin{longtable}{@{}LL@{}}
+\toprule
+\textbf{Español} & \textbf{English} \\ 
+\midrule
+\endfirsthead
+\toprule
+\textbf{Español} & \textbf{English} \\ 
+\midrule
+\endhead
+\bottomrule \\ 
+\endfoot
+\bottomrule
+\multicolumn{2}{@{}l@{}}{\large\textbf{P01}} \\ 
+¿Cuál es la relación de parentesco que usted tiene con el estudiante? & What is your relationship to the student? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Soy su mamá
+\item 2: Soy su papá
+\item 3: Soy su hermano o hermana
+\item 4: Soy su abuelo o abuela
+\item 5: Soy otro familiar y/o apoderado o apoderada
+\item 6:  No soy su familiar, pero soy su apoderado o apoderada.\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: I am the student's mother
+\item 2: I am the student's father
+\item 3: I am the student's brother or sister
+\item 4: I am the student's grandfather or grandmother
+\item 5: I am another relative and/or the student's legal guardian
+\item 6: I am not a relative, but I am the student's legal guardian\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P02}} \\ 
+¿Cuál es el nivel de estudios más alto que tiene la MADRE o APODERADA del estudiante? & What is the highest level of education of the student's mother or female guardian? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Sin estudios
+\item 2: Primaria incompleta
+\item 3: Primaria completa
+\item 4: Secundaria incompleta
+\item 5: Secundaria completa
+\item 6: Educación ocupacional incompleta (costura, soldadura, panadería, etc.)
+\item 7: Educación ocupacional completa (costura, soldadura, panadería, etc.)
+\item 8: Superior no universitaria incompleta: pedagógica, técnica, artística o militar/policial (escuela de sub oficiales)
+\item 9: Superior no universitaria completa: pedagógica, técnica, artística o militar/policial (escuela de sub oficiales)
+\item 10: Superior universitaria militar/policial incompleta (escuela de oficiales)
+\item 11: Superior universitaria o militar/policial completa (escuela de oficiales)
+\item 12: Después de la universidad ha seguido estudiando (maestría y/o doctorado)\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: No schooling
+\item 2: Incomplete primary
+\item 3: Complete primary
+\item 4: Incomplete secondary
+\item 5: Complete secondary
+\item 6: Incomplete occupational education (sewing, welding, bakery, etc.)
+\item 7: Complete occupational education (sewing, welding, bakery, etc.)
+\item 8: Incomplete non-university higher education: teacher training, technical, arts or military/police (non-commissioned officer school)
+\item 9: Complete non-university higher education: teacher training, technical, arts or military/police (non-commissioned officer school)
+\item 10: Incomplete university or military/police higher education (officer school)
+\item 11: Complete university or military/police higher education (officer school)
+\item 12: After university, continued studying (master's and/or doctorate)\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P03}} \\ 
+¿Cuál es el nivel de estudios más alto que tiene el PADRE o APODERADO del estudiante? & What is the highest level of education of the student's father or male guardian? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Sin estudios
+\item 2: Primaria incompleta
+\item 3: Primaria completa
+\item 4: Secundaria incompleta
+\item 5: Secundaria completa
+\item 6: Educación ocupacional incompleta (costura, soldadura, panadería, etc.)
+\item 7: Educación ocupacional completa (costura, soldadura, panadería, etc.)
+\item 8: Superior no universitaria incompleta: pedagógica, técnica, artística o militar/policial (escuela de sub oficiales)
+\item 9: Superior no universitaria completa: pedagógica, técnica, artística o militar/policial (escuela de sub oficiales)
+\item 10: Superior universitaria militar/policial incompleta (escuela de oficiales)
+\item 11: Superior universitaria o militar/policial completa (escuela de oficiales)
+\item 12: Después de la universidad ha seguido estudiando (maestría y/o doctorado)\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Sin estudios
+\item 2: Primaria incompleta
+\item 3: Primaria completa
+\item 4: Secundaria incompleta
+\item 5: Secundaria completa
+\item 6: Educacion ocupacional incompleta (costura, soldadura, panaderia, etc.)
+\item 7: Educacion ocupacional completa (costura, soldadura, panaderia, etc.)
+\item 8: Superior no universitaria incompleta: pedagogica, tecnica, artistica o militar/policial (escuela de sub oficiales)
+\item 9: Superior no universitaria completa: pedagogica, tecnica, artistica o militar/policial (escuela de sub oficiales)
+\item 10: Superior universitaria militar/policial incompleta (escuela de oficiales)
+\item 11: Superior universitaria o militar/policial completa (escuela de oficiales)
+\item 12: Despues de la universidad ha seguido estudiando (maestria y/o doctorado)\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P04}} \\ 
+¿De qué material están hechas principalmente las PAREDES de la casa del estudiante? & What material are the student's home's walls mainly made of? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Ladrillo o bloque de cemento
+\item 2: Piedra sillar con cal o cemento
+\item 3: Adobe o tapia
+\item 4: Quincha (caña con barro)
+\item 5: Piedra con barro
+\item 6: Madera o tablas
+\item 7: Esteras
+\item 8: Otros\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Brick or concrete block
+\item 2: Ashlar stone with lime or cement
+\item 3: Adobe or rammed earth
+\item 4: Wattle and daub (cane with mud)
+\item 5: Stone with mud
+\item 6: Wood or boards
+\item 7: Mats
+\item 8: Other\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P05}} \\ 
+¿De qué material están hechos principalmente los TECHOS de la casa del estudiante? & What material are the student's home's roofs mainly made of? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Concreto armado (cemento y ladrillo)
+\item 2: Madera
+\item 3: Tejas
+\item 4: Planchas de calamina, fibra de cemento (Eternit) o similares
+\item 5: Cañas o esteras con barro
+\item 6: Esteras
+\item 7: Pajas u hojas de palmera
+\item 8: Otros\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Reinforced concrete (cement and brick)
+\item 2: Wood
+\item 3: Roof tiles
+\item 4: Corrugated metal sheets, fiber cement (Eternit) or similar
+\item 5: Cane or reed mats with mud
+\item 6: Mats
+\item 7: Straw or palm leaves
+\item 8: Other\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P06}} \\ 
+¿De qué material están hechos principalmente los PISOS de la casa del estudiante? & What material are the student's home's floors mainly made of? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Parquet o madera pulida
+\item 2: Pisos asfálticos, vinílicos o similares
+\item 3: Losetas, mayólicas, terrazos o similares
+\item 4: Madera (entablado)
+\item 5: Cemento
+\item 6: Tierra
+\item 7: Otros\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Parquet or polished wood
+\item 2: Asphalt, vinyl or similar flooring
+\item 3: Tiles, ceramic or terrazzo
+\item 4: Wood (floorboards)
+\item 5: Cement
+\item 6: Dirt
+\item 7: Other\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P07}} \\ 
+¿De dónde viene el AGUA que usan en la casa del estudiante? & Where does the water used in the student's home come from? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Del caño dentro de la casa
+\item 2: Del caño fuera de la casa
+\item 3: Del pilón o fuente de agua de uso público
+\item 4: Del camión cisterna, aguatero o similar
+\item 5: De un pozo
+\item 6: Del río, acequia, riachuelo, manantial o similar\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Faucet inside the home
+\item 2: Faucet outside the home
+\item 3: Public water spout or fountain
+\item 4: Water truck or similar delivery
+\item 5: A well
+\item 6: River, canal, stream, spring or similar\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P08}} \\ 
+¿Cómo es el BAÑO en la casa del estudiante? & What is the bathroom like in the student's home? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: El baño está dentro de la casa y podemos jalar la palanca o cadena
+\item 2: El baño está fuera de la casa, es compartido con los vecinos y podemos jalar la palanca o cadena
+\item 3: Tenemos un baño propio que no está conectado al desagüe, pero tiene tratamiento químico
+\item 4: Tenemos un baño propio que no está conectado a un desagüe, solo tiene un pozo
+\item 5: Tenemos un baño compartido con los vecinos que no está conectado al desagüe
+\item 6: No tenemos baño.\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: The bathroom is inside the home and has a flush mechanism
+\item 2: The bathroom is outside the home, shared with neighbors, and has a flush mechanism
+\item 3: We have a private bathroom not connected to the sewer, but with chemical treatment
+\item 4: We have a private bathroom not connected to a sewer, only a pit
+\item 5: We have a shared bathroom with neighbors that is not connected to the sewer
+\item 6: We do not have a bathroom\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P09}} \\ 
+En la casa del estudiante, ¿cuál es la fuente de LUZ? & In the student's home, what is the source of LIGHT? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Electricidad
+\item 2: Generador y/o motor
+\item 3: Mechero o lamparín de kerosene
+\item 4: Lámpara de petróleo o gas
+\item 5: Vela u otro
+\item 6: Panel solar\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Electricity
+\item 2: Generator and/or engine
+\item 3: Kerosene lamp
+\item 4: Oil or gas lamp
+\item 5: Candle or other
+\item 6: Solar panel\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P10}} \\ 
+¿Cuántos de los siguientes objetos hay en la casa del estudiante? & How many of the following items are there in the student's home? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p10\_01: Televisor
+\item p10\_02: Motocicleta o mototaxi
+\item p10\_03: Auto y/o camioneta
+\item p10\_04: Refrigeradora
+\item p10\_05: Computadora de escritorio
+\item p10\_06: Laptop
+\item p10\_07: Telefóno celular con acceso a internet\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p10\_01: Television
+\item p10\_02: Motorcycle or mototaxi
+\item p10\_03: Car and/or pickup truck
+\item p10\_04: Refrigerator
+\item p10\_05: Desktop computer
+\item p10\_06: Laptop
+\item p10\_07: Mobile phone with internet access\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Ninguno
+\item 2: Hay 1
+\item 3: Hay 2
+\item 4: Hay 3 o más\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: None
+\item 2: There is 1
+\item 3: There are 2
+\item 4: There are 3 or more\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P11}} \\ 
+La casa del estudiante tiene: & La casa del estudiante tiene: \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p11\_01: Licuadora
+\item p11\_02: Plancha eléctrica
+\item p11\_03: Tablet entregada por el Ministerio de Educación, la escuela u otra organización
+\item p11\_04: Tablet adquirida por la familia con recursos propios
+\item p11\_05: Equipo de sonido
+\item p11\_06: Consola de videojuegos (PlayStation, Nintendo, Xbox, etc.)
+\item p11\_07: Horno microondas
+\item p11\_08: Lavadora
+\item p11\_09: Conexión a internet a través de un módem
+\item p11\_10: Servicio de televisión por cable o streaming (DirecTV, Movistar TV, Claro TV, etc.)
+\item p11\_11: Servicio de streaming (Netflix, Disney Plus, Amazon Prime, etc.)\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p11\_01: Blender
+\item p11\_02: Electric iron
+\item p11\_03: Tablet provided by the Ministry of Education, the school, or another organization
+\item p11\_04: Tablet purchased by the family with their own resources
+\item p11\_05: Sound system
+\item p11\_06: Video game console (PlayStation, Nintendo, Xbox, etc.)
+\item p11\_07: Microwave oven
+\item p11\_08: Washing machine
+\item p11\_09: Internet connection via modem
+\item p11\_10: Cable TV or streaming service (DirecTV, Movistar TV, Claro TV, etc.)
+\item p11\_11: Streaming service (Netflix, Disney Plus, Amazon Prime, etc.)\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: No
+\item 2: Sí\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: No
+\item 2: Yes\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P12}} \\ 
+En su casa, ¿el estudiante tiene lo siguiente? & At home, does the student have the following? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p12\_01: Una mesa y una silla que pueda usar para estudiar
+\item p12\_02: Un lugar tranquilo y sin bulla para estudiar
+\item p12\_03: Un lugar con adecuada iluminación para estudiar
+\item p12\_04: Una computadora o laptop que puede usar para sus trabajos escolares
+\item p12\_05: Un celular que puede usar para sus trabajos escolares
+\item p12\_06: Un lugar para colocar los libros y demás materiales de la escuela
+\item p12\_07: Enciclopedias, diccionarios o libros especializados\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p12\_01: A desk/table and a chair to study
+\item p12\_02: A quiet place without noise to study
+\item p12\_03: A place with adequate lighting to study
+\item p12\_04: A computer or laptop for schoolwork
+\item p12\_05: A mobile phone for schoolwork
+\item p12\_06: A place to keep books and other school materials
+\item p12\_07: Encyclopedias, dictionaries or specialized books\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: No
+\item 2: Sí\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: No
+\item 2: Yes\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P13}} \\ 
+¿Qué lengua hablan en la casa del estudiante la mayor parte del tiempo? & What language is mostly spoken in the student's home? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Castellano
+\item 2: Quechua
+\item 3: Aimara
+\item 4: Una lengua amazónica (awajún, shipibo, asháninka, etc.)
+\item 5: Una lengua extranjera (inglés, francés, etc.)\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Spanish
+\item 2: Quechua
+\item 3: Aymara
+\item 4: An Amazonian language (Awajún, Shipibo, Asháninka, etc.)
+\item 5: A foreign language (English, French, etc.)\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P14}} \\ 
+¿Cuál fue la primera lengua que el estudiante aprendió a hablar? & What was the first language the student learned to speak? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Castellano
+\item 2: Quechua
+\item 3: Aimara
+\item 4: Una lengua amazónica (awajún, shipibo, asháninka, etc.)
+\item 5: Una lengua extranjera (inglés, francés, etc.)\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Spanish
+\item 2: Quechua
+\item 3: Aymara
+\item 4: An Amazonian language (Awajún, Shipibo, Asháninka, etc.)
+\item 5: A foreign language (English, French, etc.)\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P15}} \\ 
+Durante el último mes ¿cuántos días ha faltado el estudiante a la escuela? & Durante el ultimo mes cuantos dias ha faltado el estudiante a la escuela? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: No ha faltado
+\item 2: Ha faltado 1 día
+\item 3: Ha faltado de 2 a 4 días
+\item 4: Ha faltado de 5 a 7 días
+\item 5: Ha faltado más de 7 días\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Has not missed school
+\item 2: Missed 1 day
+\item 3: Missed 2 to 4 days
+\item 4: Missed 5 to 7 days
+\item 5: Missed more than 7 days\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P16}} \\ 
+¿Cuál cree usted que será el nivel educativo más alto que alcanzará el estudiante? & Cual cree usted que sera el nivel educativo mas alto que alcanzara el estudiante? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Terminará la primaria
+\item 2: Terminará la secundaria
+\item 3: Terminará una carrera técnica
+\item 4: Terminará una carrera universitaria
+\item 5: Terminará una maestría o doctorado\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Will finish primary school
+\item 2: Will finish secondary school
+\item 3: Will complete a technical degree
+\item 4: Will complete a university degree
+\item 5: Will complete a master's degree or doctorate\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P17}} \\ 
+En una semana habitual, ¿cuántos días a la semana el estudiante realiza las siguientes actividades escolares en casa? & In a typical week, how many days per week does the student do the following school activities at home? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p17\_01: Hacer tareas que indica el docente
+\item p17\_02: Hacer trabajos en grupo con otros compañeros
+\item p17\_03: Hacer un trabajo de investigación que indica el docente
+\item p17\_04: Ver videos o páginas web que indica el docente\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p17\_01: Do homework assigned by the teacher
+\item p17\_02: Do group work with other classmates
+\item p17\_03: Do a research assignment assigned by the teacher
+\item p17\_04: Watch videos or web pages assigned by the teacher\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Ningún día
+\item 2: Uno o dos días
+\item 3: Tres o cuatro días
+\item 4: Todos o casi todos los días\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: No days
+\item 2: One or two days
+\item 3: Three or four days
+\item 4: Every day or almost every day\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P18}} \\ 
+¿Qué tan de acuerdo se encuentra con los siguientes enunciados acerca del estudiante? & How much do you agree with the following statements about the student? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p18\_01: Le gusta resolver ejercicios de Matemática
+\item p18\_02: Le hace feliz hacer sus tareas de Matemática
+\item p18\_03: La da miedo la clase de Matemática
+\item p18\_04: El curso de Matemática es su favorito
+\item p18\_05: Le gusta leer diferentes tipos de textos
+\item p18\_06: Se divierte leyendo diferentes tipos de textos
+\item p18\_07: Le aburre leer
+\item p18\_08: Lee todo lo que esté a su alcance\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p18\_01: He/She likes to solve math exercises
+\item p18\_02: He/She is happy doing math homework
+\item p18\_03: He/She is afraid of math class
+\item p18\_04: Math is his/her favorite subject
+\item p18\_05: He/She likes to read different types of texts
+\item p18\_06: He/She has fun reading different types of texts
+\item p18\_07: He/She finds reading boring
+\item p18\_08: He/She reads everything within reach\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Totalmente en desacuerdo
+\item 2: En desacuerdo
+\item 3: De acuerdo
+\item 4: Totalmente de acuerdo\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Strongly disagree
+\item 2: Disagree
+\item 3: Agree
+\item 4: Strongly agree\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P19}} \\ 
+Cuando el estudiante hace sus actividades escolares, ¿con qué frecuencia presenta las siguientes conductas? & When the student does schoolwork, how often does he/she show the following behaviors? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p19\_01: Se frustra fácilmente
+\item p19\_02: Le cuesta concentrarse
+\item p19\_03: Está motivado
+\item p19\_04: Se muestra cansado o con sueño
+\item p19\_05: Le aburre hacer las tareas que dejan\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p19\_01: Gets frustrated easily
+\item p19\_02: Has difficulty concentrating
+\item p19\_03: Is motivated
+\item p19\_04: Appears tired or sleepy
+\item p19\_05: Finds homework boring\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Nunca o casi nunca
+\item 2: Pocas veces
+\item 3: Muchas veces
+\item 4: Siempre o casi siempre\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Never or almost never
+\item 2: A few times
+\item 3: Often
+\item 4: Always or almost always\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P20}} \\ 
+En una semana habitual, ¿con que frecuencia realiza el estudiante las siguientes actividades & In a typical week, how often does the student do the following activities \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p20\_01: Quehaceres domésticos (cocinar, limpiar, lavar, etc.)
+\item p20\_02: Encargos para la casa (ir a comprar, hacer trámites, ayudar a reparar algo, etc.)
+\item p20\_03: Apoyar a los familiares que necesitan cuidados por enfermedad o discapacidad (mamá, papá, abuelos, tíos, etc.)
+\item p20\_04: Cuidar a familiares menores (hermanos, primos, conocidos, etc.)
+\item p20\_05: Cuidar a familiares ancianos
+\item p20\_06: Ayudar con las tareas escolares de otros menores de la casa
+\item p20\_07: Apoyar en la chacra o el campo (sembrar, cosechar, etc.)
+\item p20\_08: Cuidar de animales (pastoreo de ganado o cuidado de gallinas, cuyes, patos, conejos, etc.)
+\item p20\_09: Apoyar a algún miembro de la familia en su trabajo o negocio\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p20\_01: Household chores (cooking, cleaning, washing, etc.)
+\item p20\_02: Errands for the home (shopping, doing paperwork, helping repair something, etc.)
+\item p20\_03: Supporting family members who need care due to illness or disability (mother, father, grandparents, uncles/aunts, etc.)
+\item p20\_04: Caring for younger family members (siblings, cousins, acquaintances, etc.)
+\item p20\_05: Caring for elderly family members
+\item p20\_06: Helping with schoolwork of other children in the home
+\item p20\_07: Helping on the farm or in the field (planting, harvesting, etc.)
+\item p20\_08: Caring for animals (herding livestock or caring for chickens, guinea pigs, ducks, rabbits, etc.)
+\item p20\_09: Supporting a family member in their work or business\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Ningún día
+\item 2: Uno o dos días
+\item 3: Tres o cuatro días
+\item 4: Todos o casi todos los días\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: No days
+\item 2: One or two days
+\item 3: Three or four days
+\item 4: Every day or almost every day\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P21}} \\ 
+En una semana habitual, ¿con qué frecuencia usted o algún miembro de su familia realizó las siguientes actividades con el estudiante? & In a typical week, how often did you or a family member do the following activities with the student? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p21\_01: Leer juntos un libro, cuento o una revista
+\item p21\_02: Cantar canciones
+\item p21\_03: Jugar juegos de mesa (por ejemplo, ludo, cartas, ajedrez, etc.)
+\item p21\_04: Jugar en un celular o computadora
+\item p21\_05: Hacer deporte juntos
+\item p21\_06: Almorzar juntos
+\item p21\_07: Pasar tiempo conversando sobre cualquier tema
+\item p21\_08: Conversar sobre las noticias actuales
+\item p21\_09: Conversar sobre las películas o videos que han visto
+\item p21\_10: Conversar o comentar sobre lecturas realizadas (por ejemplo, libros, periódicos, revistas)
+\item p21\_11: Dibujar, pintar, hacer manualidades\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p21\_01: Read a book, story, or magazine together
+\item p21\_02: Sing songs
+\item p21\_03: Play board games (e.g., ludo, cards, chess, etc.)
+\item p21\_04: Play on a mobile phone or computer
+\item p21\_05: Play sports together
+\item p21\_06: Have lunch together
+\item p21\_07: Spend time talking about any topic
+\item p21\_08: Talk about current news
+\item p21\_09: Talk about movies or videos they have watched
+\item p21\_10: Talk or comment about readings (e.g., books, newspapers, magazines)
+\item p21\_11: Draw, paint, do crafts\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Ningún día
+\item 2: Uno o dos días
+\item 3: Tres o cuatro días
+\item 4: Todos o casi todos los días\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: No days
+\item 2: One or two days
+\item 3: Three or four days
+\item 4: Every day or almost every day\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P22}} \\ 
+¿Con qué frecuencia usted o algún miembro de su familia realiza las siguientes actividades con el estudiante? & How often do you or a family member do the following activities with the student? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p22\_01: Hablar sobre las tareas que le dejan en clases
+\item p22\_02: Preguntarle sobre lo que está aprendiendo
+\item p22\_03: Explicarle si no entiende algún tema o curso de la escuela
+\item p22\_04: Conversar sobre cómo le va en la escuela
+\item p22\_05: Asegurarse de que está avanzando en sus aprendizajes
+\item p22\_06: Ayudarle a establecer un horario de estudio
+\item p22\_07: Ayudarle a encontrar materiales o información adicional\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p22\_01: Talk about the homework assigned in class
+\item p22\_02: Ask him/her about what he/she is learning
+\item p22\_03: Explain if he/she does not understand a topic or school subject
+\item p22\_04: Talk about how he/she is doing in school
+\item p22\_05: Make sure he/she is progressing in learning
+\item p22\_06: Help him/her establish a study schedule
+\item p22\_07: Help him/her find additional materials or information\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Nunca o casi nunca
+\item 2: Pocas veces
+\item 3: Muchas veces
+\item 4: Siempre o casi siempre\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Never or almost never
+\item 2: A few times
+\item 3: Often
+\item 4: Always or almost always\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P23}} \\ 
+¿Con qué frecuencia usted o algún miembro de su familia ha participado en las siguientes actividades durante este año escolar? & How often have you or a family member participated in the following activities during this school year? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p23\_01: Conversar con el profesor sobre el progreso del estudiante, por iniciativa propia
+\item p23\_02: Conversar con el profesor sobre el progreso del estudiante, por iniciativa del profesor
+\item p23\_03: Conversar con el profesor sobre las normas del salón de clases
+\item p23\_04: Conversar con el profesor sobre las tareas para practicar en casa
+\item p23\_05: Participar en reuniones de padres de familia de 6.° grado de primaria
+\item p23\_06: Asistir a un evento de la escuela o aula (por ejemplo, evento deportivo, feria de ciencias, festival de danzas etc.)
+\item p23\_07: Participar en actividades organizadas por la escuela para recaudar fondos
+\item p23\_08: Participar en algún trabajo voluntario para la escuela
+\item p23\_09: Participar en talleres o jornadas para padres de familia
+\item p23\_10: Conversar con otros padres de familia sobre las reuniones y eventos escolares\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p23\_01: Talk with the teacher about the student's progress, on your own initiative
+\item p23\_02: Talk with the teacher about the student's progress, at the teacher's initiative
+\item p23\_03: Talk with the teacher about classroom rules
+\item p23\_04: Talk with the teacher about homework to practice at home
+\item p23\_05: Participate in parent meetings for 6th grade of primary school
+\item p23\_06: Attend a school or classroom event (e.g., sports event, science fair, dance festival, etc.)
+\item p23\_07: Participate in activities organized by the school to raise funds
+\item p23\_08: Participate in volunteer work for the school
+\item p23\_09: Participate in workshops or sessions for parents
+\item p23\_10: Talk with other parents about school meetings and events\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Nunca o casi nunca
+\item 2: Pocas veces
+\item 3: Muchas veces
+\item 4: Siempre o casi siempre\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Never or almost never
+\item 2: A few times
+\item 3: Often
+\item 4: Always or almost always\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P24}} \\ 
+¿Qué tan de acuerdo está con las siguientes afirmaciones? & How much do you agree with the following statements? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p24\_01: A los niños les va mejor que a las niñas en el área de Matemática
+\item p24\_02: A las niñas les va mejor que a los niños en el área de Comunicación
+\item p24\_03: Los niños tienen más facilidad para las matemáticas que las niñas
+\item p24\_04: Las niñas tienen más facilidad para leer que los niños
+\item p24\_05: Los niños entienden más de números porque nacen con esa habilidad
+\item p24\_06: Las niñas comprenden más cuando leen porque les nace ser más comunicativas
+\item p24\_07: Es más aceptable que las niñas muestren miedo que los niños
+\item p24\_08: Es más aceptable que las niñas muestren sus emociones que los niños
+\item p24\_09: Creo que los niños no deben llorar porque muestra debilidad
+\item p24\_10: El miedo y la tristeza son emociones “femeninas”, y la ira es una emoción “masculina”
+\item p24\_11: Es más aceptable que los niños expresen enojo que las niñas\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p24\_01: Boys do better than girls in Math
+\item p24\_02: Girls do better than boys in Communication
+\item p24\_03: Boys have more facility for math than girls
+\item p24\_04: Girls have more facility for reading than boys
+\item p24\_05: Boys understand numbers better because they are born with that ability
+\item p24\_06: Girls understand more when they read because they are naturally more communicative
+\item p24\_07: It is more acceptable for girls to show fear than boys
+\item p24\_08: It is more acceptable for girls to show their emotions than boys
+\item p24\_09: I believe boys should not cry because it shows weakness
+\item p24\_10: El miedo y la tristeza son emociones “femeninas”, y la ira es una emocion “masculina”
+\item p24\_11: It is more acceptable for boys to express anger than girls\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Totalmente en desacuerdo
+\item 2: En desacuerdo
+\item 3: De acuerdo
+\item 4: Totalmente de acuerdo\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Strongly disagree
+\item 2: Disagree
+\item 3: Agree
+\item 4: Strongly agree\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P25}} \\ 
+¿Qué tan de acuerdo está con las siguientes afirmaciones? & How much do you agree with the following statements? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p25\_01: El castigo físico puede ser aceptable solo en algunas situaciones
+\item p25\_02: El castigo físico es un método para disciplinar a los hijos o hijas
+\item p25\_03: Cada familia puede decidir si usa el castigo físico según sus propias reglas
+\item p25\_04: El uso del castigo físico ayuda en la educación de los hijos o hijas
+\item p25\_05: El castigo físico puede ser eficaz para corregir durante la niñez y adolescencia\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p25\_01: Physical punishment can be acceptable only in some situations
+\item p25\_02: Physical punishment is a method to discipline children
+\item p25\_03: Each family can decide whether to use physical punishment according to their own rules
+\item p25\_04: The use of physical punishment helps in the education of children
+\item p25\_05: Physical punishment can be effective for correction during childhood and adolescence\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Totalmente en desacuerdo
+\item 2: En desacuerdo
+\item 3: De acuerdo
+\item 4: Totalmente de acuerdo\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Strongly disagree
+\item 2: Disagree
+\item 3: Agree
+\item 4: Strongly agree\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P26}} \\ 
+Si el estudiante tuviera que ir desde la casa a la escuela CAMINANDO, aproximadamente, ¿cuánto tiempo se demoraría? & If the student had to go from home to school WALKING, approximately how long would it take? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Menos de 15 minutos caminando
+\item 2: Entre 15 y 30 minutos caminando
+\item 3: Entre 31 y 45 minutos caminando
+\item 4: Entre 46 minutos y 1 hora caminando
+\item 5: Más de 1 hora caminando\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Less than 15 minutes walking
+\item 2: Between 15 and 30 minutes walking
+\item 3: Between 31 and 45 minutes walking
+\item 4: Between 46 minutes and 1 hour walking
+\item 5: More than 1 hour walking\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P27}} \\ 
+Cuando el estudiante va desde la casa a la escuela en el TRANSPORTE HABITUAL que utiliza, aproximadamente, ¿cuánto tiempo se demora? & When the student goes from home to school using the USUAL TRANSPORTATION, approximately how long does it take? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Menos de 15 minutos
+\item 2: Entre 15 y 30 minutos
+\item 3: Entre 31 y 45 minutos
+\item 4: Entre 46 minutos y 1 hora
+\item 5: Más de 1 hora\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Less than 15 minutes
+\item 2: Between 15 and 30 minutes
+\item 3: Between 31 and 45 minutes
+\item 4: Between 46 minutes and 1 hour
+\item 5: More than 1 hour\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P28}} \\ 
+¿La familia eligió la escuela a donde asiste el estudiante por alguno de los siguientes motivos? & Did the family choose the school the student attends for any of the following reasons? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p28\_01: Porque queda cerca de la casa del estudiante
+\item p28\_02: Porque es la única escuela dentro del distrito o comunidad
+\item p28\_03: Porque era la opción más económica
+\item p28\_04: Porque los métodos de enseñanza que aplica la escuela son buenos
+\item p28\_05: Por las actividades extracurriculares que ofrece
+\item p28\_06: Porque saben atender las necesidades del estudiante
+\item p28\_07: Porque la zona donde está ubicada la escuela es segura
+\item p28\_08: Porque es la escuela donde han estudiado o estudian sus hermanos\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p28\_01: Because it is close to the student's home
+\item p28\_02: Because it is the only school within the district or community
+\item p28\_03: Because it was the most affordable option
+\item p28\_04: Because the teaching methods the school applies are good
+\item p28\_05: Because of the extracurricular activities it offers
+\item p28\_06: Because they know how to meet the student's needs
+\item p28\_07: Because the area where the school is located is safe
+\item p28\_08: Because it is the school where his/her siblings have studied or are studying\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: No
+\item 2: Sí\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: No
+\item 2: Yes\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P29}} \\ 
+Durante este año escolar, ¿usted sabe si al estudiante le han sucedido algunas de las siguientes situaciones en 6.° grado de primaria? & During this school year, do you know if any of the following situations have happened to the student in 6th grade of primary school? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p29\_01: Un estudiante le ha gritado
+\item p29\_02: Un estudiante se ha burlado de él o ella
+\item p29\_03: Un estudiante le ha insultado
+\item p29\_04: Un estudiante ha difundido rumores o chismes de él o ella
+\item p29\_05: Un estudiante le ha quitado o escondido sus cosas
+\item p29\_06: Un estudiante le ha amenazado
+\item p29\_07: Un estudiante le ha golpeado\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p29\_01: A student has yelled at him/her
+\item p29\_02: A student has made fun of him/her
+\item p29\_03: A student has insulted him/her
+\item p29\_04: A student has spread rumors or gossip about him/her
+\item p29\_05: A student has taken or hidden his/her things
+\item p29\_06: A student has threatened him/her
+\item p29\_07: A student has hit him/her\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: No lo sé
+\item 2: No ha pasado
+\item 3: Sí ha pasado una vez
+\item 4: Sí, ha pasado más de una vez\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: I do not know
+\item 2: It has not happened
+\item 3: Yes, it has happened once
+\item 4: Yes, it has happened more than once\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P30}} \\ 
+¿Qué tan de acuerdo está con los siguientes aspectos de la escuela del estudiante? & How much do you agree with the following aspects of the student's school? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p30\_01: Dentro de la escuela se promueve un entorno seguro para el estudiante
+\item p30\_02: La escuela se preocupa por el progreso del estudiante
+\item p30\_03: La escuela adapta la enseñanza según la necesidad de los estudiantes
+\item p30\_04: La escuela promueve una alta exigencia académica
+\item p30\_05: La escuela enseña un contenido adecuado para los estudiantes
+\item p30\_06: La escuela aplica métodos de enseñanza adecuados para los estudiantes
+\item p30\_07: La escuela hace cumplir las normas
+\item p30\_08: La escuela hace todo lo posible para asegurarse que todos los estudiantes aprendan
+\item p30\_09: El número de estudiantes por aula es aceptable
+\item p30\_10: La escuela tiene un equipamiento adecuado para la enseñanza
+\item p30\_11: La escuela brinda facilidades de infraestructura para estudiantes con discapacidad (rampas, barandas, puertas anchas, etc.)
+\item p30\_12: Los docentes tienen un buen trato con los estudiantes\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p30\_01: Within the school, a safe environment is promoted for the student
+\item p30\_02: The school cares about the student's progress
+\item p30\_03: The school adapts teaching according to students' needs
+\item p30\_04: The school promotes high academic standards
+\item p30\_05: The school teaches appropriate content for students
+\item p30\_06: The school applies appropriate teaching methods for students
+\item p30\_07: The school enforces the rules
+\item p30\_08: The school does everything possible to ensure that all students learn
+\item p30\_09: The number of students per classroom is acceptable
+\item p30\_10: The school has adequate equipment for teaching
+\item p30\_11: The school provides infrastructure facilities for students with disabilities (ramps, railings, wide doors, etc.)
+\item p30\_12: Teachers treat students well\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Totalmente en desacuerdo
+\item 2: En desacuerdo
+\item 3: De acuerdo
+\item 4: Totalmente de acuerdo\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Strongly disagree
+\item 2: Disagree
+\item 3: Agree
+\item 4: Strongly agree\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P31}} \\ 
+De 4.° grado de primaria a 6.° grado de primaria, ¿usted cambió de escuela al estudiante? & From 4th grade to 6th grade of primary school, did you change the student's school? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p31\_01: No lo cambié de escuela
+\item p31\_02: Sí, lo cambié de escuela porque la enseñanza no era buena
+\item p31\_03: Sí, lo cambié de escuela porque no estaba ubicada en un lugar seguro
+\item p31\_04: Sí, lo cambié de escuela porque no tenía una infraestructura adecuada
+\item p31\_05: Sí, lo cambié de escuela porque los docentes no trataban bien a mi hijo o hija
+\item p31\_06: Sí, lo cambié de escuela porque los compañeros de mi hijo o hija no lo trataban bien
+\item p31\_07: Sí, lo cambié de escuela porque había mucha indisciplina entre los estudiantes
+\item p31\_08: Sí, lo cambié de escuela porque me mudé de casa o de lugar de trabajo
+\item p31\_09: Sí, lo cambié de escuela por dificultades económicas\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p31\_01: I did not change his/her school
+\item p31\_02: Yes, I changed his/her school because the teaching was not good
+\item p31\_03: Yes, I changed his/her school because it was not located in a safe place
+\item p31\_04: Yes, I changed his/her school because it did not have adequate infrastructure
+\item p31\_05: Yes, I changed his/her school because the teachers did not treat my son or daughter well
+\item p31\_06: Yes, I changed his/her school because my son or daughter's classmates did not treat him/her well
+\item p31\_07: Yes, I changed his/her school because there was a lot of indiscipline among students
+\item p31\_08: Yes, I changed his/her school because I moved home or workplace
+\item p31\_09: Yes, I changed his/her school due to financial difficulties\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: No
+\item 2: Sí\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: No
+\item 2: Yes\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P32}} \\ 
+El siguiente año, cuando el estudiante pase a 1.° grado de secundaria, ¿cambiará al estudiante de escuela? & Next year, when the student moves to 1st grade of secondary school, will you change the student's school? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: No lo cambiaré de escuela
+\item 2: Sí, lo cambiaré de escuela porque esta escuela no tiene nivel secundario
+\item 3: Sí, lo cambiaré de escuela por otras razones\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: I will not change his/her school
+\item 2: Yes, I will change his/her school because this school does not have secondary level
+\item 3: Yes, I will change his/her school for other reasons\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P33}} \\ 
+¿Cuáles serán las razones por las que cambiará al estudiante de escuela? & What will be the reasons why you will change the student's school? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p33\_01: Lo cambiaré de escuela porque la enseñanza no es buena
+\item p33\_02: Lo cambiaré de escuela porque no está ubicada en un lugar seguro
+\item p33\_03: Lo cambiaré de escuela porque no tiene una infraestructura adecuada
+\item p33\_04: Lo cambiaré de escuela porque los docentes no tratan bien a mi hijo o hija
+\item p33\_05: Lo cambiaré de escuela porque los compañeros de mi hijo o hija no lo tratan bien
+\item p33\_06: Lo cambiaré de escuela porque hay mucha indisciplina entre los estudiantes
+\item p33\_07: Lo cambiaré de escuela porque me mudaré de casa o de lugar de trabajo
+\item p33\_08: Lo cambiaré porque se gasta mucho en esta escuela\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p33\_01: I will change his/her school because the teaching is not good
+\item p33\_02: I will change his/her school because it is not located in a safe place
+\item p33\_03: I will change his/her school because it does not have adequate infrastructure
+\item p33\_04: I will change his/her school because the teachers do not treat my son or daughter well
+\item p33\_05: I will change his/her school because my son or daughter's classmates do not treat him/her well
+\item p33\_06: I will change his/her school because there is a lot of indiscipline among students
+\item p33\_07: I will change his/her school because I will move home or workplace
+\item p33\_08: I will change because too much is spent at this school\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: No
+\item 2: Sí\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: No
+\item 2: Yes\end{itemize} \\
+\addlinespace[4pt]
+\end{longtable}
+\end{document}

@@ -1,0 +1,611 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{ragged2e}
+\setlength{\parindent}{0pt}
+\sloppy
+\newcolumntype{L}{>{\RaggedRight\arraybackslash}p{0.48\textwidth}}
+\begin{document}
+\newpage
+\begin{longtable}{@{}LL@{}}
+\toprule
+\textbf{Español} & \textbf{English} \\ 
+\midrule
+\endfirsthead
+\toprule
+\textbf{Español} & \textbf{English} \\ 
+\midrule
+\endhead
+\bottomrule \\ 
+\endfoot
+\bottomrule
+\multicolumn{2}{@{}l@{}}{\large\textbf{P01}} \\ 
+¿Cuántos años tienes? & How old are you? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Menos de 10 años
+\item 2: 10 años
+\item 3: 11 años
+\item 4: 12 años
+\item 5: Más de 12 años\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Under 10 years
+\item 2: 10 years
+\item 3: 11 years
+\item 4: 12 years
+\item 5: Over 12 years\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P02}} \\ 
+¿Cuál fue la primera lengua que aprendiste a hablar? & What was the first language you learned to speak? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Castellano
+\item 2: Quechua
+\item 3: Aimara
+\item 4: Una lengua amazónica (awajún, shipibo, asháninka, etc.)
+\item 5: Una lengua extranjera (inglés, francés, alemán, etc.)\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Spanish
+\item 2: Quechua
+\item 3: Aymara
+\item 4: An Amazonian language (Awajún, Shipibo, Asháninka, etc.)
+\item 5: A foreign language (English, French, German, etc.)\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P03}} \\ 
+¿Qué lengua hablan en tu casa la mayor parte del tiempo? & What language is mostly spoken at home? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Castellano
+\item 2: Quechua
+\item 3: Aimara
+\item 4: Una lengua amazónica (awajún, shipibo, asháninka, etc.)
+\item 5: Una lengua extranjera (inglés, francés, alemán, etc.)\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Spanish
+\item 2: Quechua
+\item 3: Aymara
+\item 4: An Amazonian language (Awajún, Shipibo, Asháninka, etc.)
+\item 5: A foreign language (English, French, German, etc.)\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P04}} \\ 
+Durante el último mes, ¿cuántos días has faltado a la escuela? & In the last month, how many days did you miss school? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: De 0 a 1 día
+\item 2: De 2 a 4 días
+\item 3: De 5 a 7 días
+\item 4: Más de 7 días\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: From 0 to 1 day
+\item 2: From 2 to 4 days
+\item 3: From 5 to 7 days
+\item 4: More than 7 days\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P05}} \\ 
+¿Qué tan de acuerdo estás con las siguientes afirmaciones? & How much do you agree with the following statements? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p05\_01: Me emociona la idea de comenzar a estudiar la secundaria
+\item p05\_02: Me da miedo comenzar la secundaria
+\item p05\_03: Creo que mis notas serán mejores en la secundaria
+\item p05\_04: Me gustaría que la escuela acabe en 6.° grado de primaria y no tener que estudiar más
+\item p05\_05: Preferiría ponerme a trabajar en lugar de entrar a la secundaria
+\item p05\_06: Siento que en la secundaria será muy difícil aprobar todos los cursos
+\item p05\_07: Me preocupa no tener el dinero suficiente para seguir estudiando
+\item p05\_08: Me preocupa sufrir de violencia o acoso escolar (bullying) en secundaria\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p05\_01: I am excited about starting secondary school
+\item p05\_02: I am afraid to start secondary school
+\item p05\_03: I think my grades will be better in secondary school
+\item p05\_04: I would like school to end in 6th grade of primary and not have to study further
+\item p05\_05: I would rather start working instead of entering secondary school
+\item p05\_06: I feel it will be very hard to pass all courses in secondary school
+\item p05\_07: I worry about not having enough money to keep studying
+\item p05\_08: I worry about suffering violence or school bullying in secondary school\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Totalmente en desacuerdo
+\item 2: En desacuerdo
+\item 3: De acuerdo
+\item 4: Totalmente de acuerdo\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Strongly disagree
+\item 2: Disagree
+\item 3: Agree
+\item 4: Strongly agree\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P06}} \\ 
+¿Qué tan preparado te sientes para comenzar el 1.° grado de secundaria el siguiente año? & How prepared do you feel to start 1st year of secondary school next year? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Nada preparado
+\item 2: Poco preparado
+\item 3: Más o menos preparado
+\item 4: Totalmente preparado\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Not at all prepared
+\item 2: A little prepared
+\item 3: Somewhat prepared
+\item 4: Fully prepared\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P07}} \\ 
+¿Cuál crees que será el nivel de estudios más alto que alcanzarás? & What is the highest level of education you think you will achieve? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: No terminaré la primaria
+\item 2: Terminaré la secundaria
+\item 3: Terminaré una carrera técnica
+\item 4: Terminaré una carrera universitaria
+\item 5: Terminaré una maestría o doctorado\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: I will not finish primary school
+\item 2: I will finish secondary school
+\item 3: I will complete a technical degree
+\item 4: I will complete a university degree
+\item 5: I will complete a master's degree or doctorate\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P08}} \\ 
+En una semana habitual, ¿cuántas horas les dedicas a la lectura en tu TIEMPO LIBRE? & In a typical week, how many hours do you spend reading in your FREE TIME? \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: No leo en mi tiempo libre
+\item 2: Menos de 2 horas a la semana
+\item 3: Entre 2 y 4 horas a la semana
+\item 4: Entre 5 y 7 horas a la semana
+\item 5: Entre 8 y 10 horas a la semana
+\item 6: Más de 10 horas a la semana\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: I do not read in my free time
+\item 2: Less than 2 hours per week
+\item 3: Between 2 and 4 hours per week
+\item 4: Between 5 and 7 hours per week
+\item 5: Between 8 and 10 hours per week
+\item 6: More than 10 hours per week\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P09}} \\ 
+¿Qué tan de acuerdo estás con los siguientes enunciados sobre las razones por las que lees en tu TIEMPO LIBRE? & How much do you agree with the following statements about why you read in your FREE TIME? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p09\_01: Leo porque lo disfruto mucho
+\item p09\_02: Leo porque es divertido
+\item p09\_03: Leo porque me gusta mucho
+\item p09\_04: Leo porque creo que es interesante
+\item p09\_05: Leo porque creo que la lectura es útil
+\item p09\_06: Leo porque es importante para mí
+\item p09\_07: Leo porque no quiero decepcionar a los demás
+\item p09\_08: Leo porque me sentiré culpable si no lo hago
+\item p09\_09: Leo porque eso es lo que los demás esperan que haga
+\item p09\_10: Leo porque tengo que demostrarme a mí mismo que puedo sacar buenas notas en Comunicación
+\item p09\_11: Leo porque me castigarán si no leo
+\item p09\_12: Leo porque lo veo necesario para no sentirme mal conmigo mismo\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p09\_01: I read because I enjoy it a lot
+\item p09\_02: I read because it is fun
+\item p09\_03: I read because I like it a lot
+\item p09\_04: I read because I think it is interesting
+\item p09\_05: I read because I think reading is useful
+\item p09\_06: I read because it is important to me
+\item p09\_07: I read because I do not want to disappoint others
+\item p09\_08: I read because I would feel guilty if I did not
+\item p09\_09: I read because that is what others expect me to do
+\item p09\_10: I read because I have to prove to myself that I can get good grades in Communication
+\item p09\_11: I read because I will be punished if I do not
+\item p09\_12: I read because I see it as necessary so I do not feel bad about myself\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Totalmente en desacuerdo
+\item 2: En desacuerdo
+\item 3: De acuerdo
+\item 4: Totalmente de acuerdo\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Strongly disagree
+\item 2: Disagree
+\item 3: Agree
+\item 4: Strongly agree\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P10}} \\ 
+Cuando estudias un tema para aprender o para dar un examen, ¿qué tan seguido realizas las siguientes acciones? & When you study a topic to learn or for a test, how often do you do the following? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p10\_01: Resalto lo que me parece más importante
+\item p10\_02: Intento memorizar el contenido palabra por palabra
+\item p10\_03: Repito lo que he leído varias veces
+\item p10\_04: Reescribo mis apuntes del libro a mi cuaderno
+\item p10\_05: Intento comprender lo que aprendo
+\item p10\_06: Se me ocurren ejemplos relacionados con lo que estoy aprendiendo
+\item p10\_07: Intento relacionar lo que estoy aprendiendo con cosas que ya sé
+\item p10\_08: Asocio lo que estudio con imágenes o situaciones que creo en mi mente
+\item p10\_09: Intento explicar los conceptos con mis propias palabras
+\item p10\_10: Intento deducir el significado de palabras o frases desconocidas utilizando el propio texto
+\item p10\_11: Después de leer, me explico a mí mismo lo que he leído
+\item p10\_12: Escribo resúmenes
+\item p10\_13: Elaboro mapas conceptuales o diagramas
+\item p10\_14: Explico de qué trata el texto a otros compañeros o personas\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p10\_01: I highlight what seems most important to me
+\item p10\_02: I try to memorize the content word for word
+\item p10\_03: I repeat what I have read several times
+\item p10\_04: I rewrite my notes from the book into my notebook
+\item p10\_05: I try to understand what I learn
+\item p10\_06: I come up with examples related to what I am learning
+\item p10\_07: I try to relate what I am learning to things I already know
+\item p10\_08: I associate what I study with images or situations I create in my mind
+\item p10\_09: I try to explain the concepts in my own words
+\item p10\_10: I try to infer the meaning of unknown words or phrases using the text itself
+\item p10\_11: After reading, I explain to myself what I have read
+\item p10\_12: I write summaries
+\item p10\_13: I make concept maps or diagrams
+\item p10\_14: I explain what the text is about to classmates or others\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Nunca o casi nunca
+\item 2: Algunas veces
+\item 3: Muchas veces
+\item 4: Siempre o casi siempre\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Never or almost never
+\item 2: Sometimes
+\item 3: Often
+\item 4: Always or almost always\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P11}} \\ 
+¿Qué tan de acuerdo estás con los siguientes enunciados sobre tu clase de COMUNICACIÓN? & How much do you agree with the following statements about your COMMUNICATION class? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p11\_01: Me gusta lo que leo en la clase
+\item p11\_02: Los textos que nos dan en clase son muy difíciles de comprender
+\item p11\_03: En la clase, me dan textos interesantes para leer
+\item p11\_04: Disfruto aprender cosas nuevas en la clase
+\item p11\_05: Los textos que nos dan en clase son muy largos
+\item p11\_06: En general, me interesa lo que leo en la clase
+\item p11\_07: Los textos que nos dan en clase tienen palabras muy difíciles
+\item p11\_08: En las clases, me dan textos con información nueva
+\item p11\_09: Los textos que leemos son para estudiantes de nuestra edad
+\item p11\_10: Los textos que nos dan en clase son muy aburridos\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p11\_01: I like what I read in class
+\item p11\_02: The texts we are given in class are very difficult to understand
+\item p11\_03: In class, we are given interesting texts to read
+\item p11\_04: I enjoy learning new things in class
+\item p11\_05: The texts we are given in class are very long
+\item p11\_06: In general, I am interested in what I read in class
+\item p11\_07: The texts we are given in class have very difficult words
+\item p11\_08: In class, we are given texts with new information
+\item p11\_09: The texts we read are for students our age
+\item p11\_10: The texts we are given in class are very boring\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Totalmente en desacuerdo
+\item 2: En desacuerdo
+\item 3: De acuerdo
+\item 4: Totalmente de acuerdo\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Strongly disagree
+\item 2: Disagree
+\item 3: Agree
+\item 4: Strongly agree\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P12}} \\ 
+¿Qué tan seguido el profesor que enseña COMUNICACIÓN realiza las siguientes acciones? & How often does the teacher who teaches COMMUNICATION do the following? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p12\_01: Nos pide dar nuestra opinión personal sobre lo que leemos
+\item p12\_02: Nos pide explicar por qué nos gusta o disgusta un pasaje del texto
+\item p12\_03: Nos pide que pensemos o que nos preguntemos sobre cómo se relacionan los textos que leemos con nuestra vida diaria
+\item p12\_04: Nos pide que expliquemos nuestras respuestas con detalle
+\item p12\_05: Nos presenta textos que incluyen esquemas o mapas conceptuales
+\item p12\_06: Nos pide explicar el aporte de los gráficos o dibujos del texto
+\item p12\_07: Nos presenta diferentes textos que tratan del mismo tema
+\item p12\_08: Nos hace pensar si es que podemos confiar en lo que dice el autor en el texto
+\item p12\_09: Nos pide que compartamos en grupo nuestras opiniones sobre los textos\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p12\_01: He/She asks us to give our personal opinion about what we read
+\item p12\_02: He/She asks us to explain why we like or dislike a passage of the text
+\item p12\_03: He/She asks us to think about how the texts we read relate to our daily life
+\item p12\_04: He/She asks us to explain our answers in detail
+\item p12\_05: He/She presents texts that include outlines or concept maps
+\item p12\_06: He/She asks us to explain the contribution of the text's graphics or drawings
+\item p12\_07: He/She presents different texts on the same topic
+\item p12\_08: He/She makes us consider whether we can trust what the author says in the text
+\item p12\_09: He/She asks us to share our opinions about the texts in groups\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Nunca o casi nunca
+\item 2: En algunas clases
+\item 3: En la mayoría de las clases
+\item 4: En todas o en casi todas las clases\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Never or almost never
+\item 2: In some classes
+\item 3: In most classes
+\item 4: In all or almost all classes\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P13}} \\ 
+¿Qué tan seguido el profesor que enseña MATEMÁTICA realiza las siguientes acciones? & How often does the teacher who teaches MATHEMATICS do the following? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p13\_01: Nos deja tareas que requieren pensar más y no solo aplicar fórmulas o resolver ecuaciones
+\item p13\_02: Nos pide explicar cómo hemos resuelto un problema o ejercicio
+\item p13\_03: Nos pide que pensemos o nos preguntemos sobre cómo se relacionan los temas nuevos con los anteriores
+\item p13\_04: Nos pide que expliquemos nuestras respuestas con detalle
+\item p13\_05: Nos enseña a resolver los problemas de muchas maneras
+\item p13\_06: Nos pide que elaboremos nuestros propios problemas de matemática
+\item p13\_07: Nos motiva a que encontremos nuestra propia forma de resolver los problemas o ejercicios de matemática
+\item p13\_08: Nos motiva a relacionar lo que aprendemos con situaciones de la vida real\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p13\_01: He/She assigns tasks that require more thinking and not just applying formulas or solving equations
+\item p13\_02: He/She asks us to explain how we solved a problem or exercise
+\item p13\_03: He/She asks us to think about how new topics relate to previous ones
+\item p13\_04: He/She asks us to explain our answers in detail
+\item p13\_05: He/She teaches us to solve problems in many ways
+\item p13\_06: He/She asks us to create our own math problems
+\item p13\_07: He/She encourages us to find our own way to solve math problems or exercises
+\item p13\_08: He/She encourages us to relate what we learn to real-life situations\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Nunca o casi nunca
+\item 2: En algunas clases
+\item 3: En la mayoría de las clases
+\item 4: En todas o en casi todas las clases\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Never or almost never
+\item 2: In some classes
+\item 3: In most classes
+\item 4: In all or almost all classes\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P14}} \\ 
+¿Qué tan seguido ocurren las siguientes situaciones en las clases de MATEMÁTICA? & How often do the following situations occur in MATH classes? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p14\_01: Durante la clase hay desorden en el salón
+\item p14\_02: El profesor tiene que esperar mucho tiempo para que los estudiantes se callen
+\item p14\_03: Algunos estudiantes hacen tanto desorden que se hace difícil aprender
+\item p14\_04: Cuando el profesor explica algo en clase, es capaz de hacer que todos le prestemos atención
+\item p14\_05: El profesor mantiene el orden de las clases a pesar de todas las preguntas de los estudiantes
+\item p14\_06: Los estudiantes participan de manera ordenada en las clases
+\item p14\_07: Cuando un estudiante participa en clase, otros interrumpen
+\item p14\_08: Los estudiantes se distraen en la clase\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p14\_01: During class there is disorder in the classroom
+\item p14\_02: The teacher has to wait a long time for students to be quiet
+\item p14\_03: Some students create so much disorder that it is hard to learn
+\item p14\_04: When the teacher explains something in class, he/she can get everyone to pay attention
+\item p14\_05: The teacher keeps order in class despite all the students' questions
+\item p14\_06: Students participate in an orderly way in class
+\item p14\_07: When a student participates in class, others interrupt
+\item p14\_08: Students get distracted in class\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Nunca o casi nunca
+\item 2: En algunas clases
+\item 3: En la mayoría de las clases
+\item 4: En todas o en casi todas las clases\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Never or almost never
+\item 2: In some classes
+\item 3: In most classes
+\item 4: In all or almost all classes\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P15}} \\ 
+¿Qué tan de acuerdo estás con los siguientes enunciados? & How much do you agree with the following statements? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p15\_01: La matemática me da miedo
+\item p15\_02: En general, me preocupa resolver ejercicios de matemática
+\item p15\_03: Me pongo muy nervioso o nerviosa en un examen de matemática
+\item p15\_04: Normalmente, la matemática me pone muy nervioso o nerviosa
+\item p15\_05: Me siento mal cuando pienso en resolver problemas de matemática
+\item p15\_06: Cuando hago problemas de matemática se me pone la mente en blanco y no puedo pensar claramente
+\item p15\_07: Me dan miedo los exámenes de matemática
+\item p15\_08: Las tareas de matemática me hacen sentir nervioso o nerviosa\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p15\_01: Math scares me
+\item p15\_02: In general, I worry about solving math exercises
+\item p15\_03: I get very nervous in a math exam
+\item p15\_04: Normally, math makes me very nervous
+\item p15\_05: I feel bad when I think about solving math problems
+\item p15\_06: When I do math problems my mind goes blank and I can't think clearly
+\item p15\_07: I am afraid of math exams
+\item p15\_08: Math homework makes me feel nervous\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Totalmente en desacuerdo
+\item 2: En desacuerdo
+\item 3: De acuerdo
+\item 4: Totalmente de acuerdo\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Strongly disagree
+\item 2: Disagree
+\item 3: Agree
+\item 4: Strongly agree\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P16}} \\ 
+¿Qué tan de acuerdo estás con las siguientes afirmaciones relacionadas con la matemática? & How much do you agree with the following statements related to mathematics? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p16\_01: Me gusta la matemática
+\item p16\_02: Me siento bien cuando tengo que hacer mis tareas de matemática
+\item p16\_03: Me da pena tener que gastar mi tiempo haciendo ejercicios de matemática
+\item p16\_04: Cuando tengo que hacer matemática, preferiría hacer otras cosas
+\item p16\_05: La matemática es fácil para mí
+\item p16\_06: Me intereso por la clase de matemática
+\item p16\_07: Me interesa que me vaya bien en matemática porque es importante para mí
+\item p16\_08: Si me dieran la opción de elegir, escogería aprender matemática\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p16\_01: I like math
+\item p16\_02: I feel good when I have to do my math homework
+\item p16\_03: I feel sorry to spend my time doing math exercises
+\item p16\_04: When I have to do math, I would rather do other things
+\item p16\_05: Math is easy for me
+\item p16\_06: I am interested in math class
+\item p16\_07: It matters to me to do well in math because it is important to me
+\item p16\_08: If I had the option, I would choose to learn math\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Totalmente en desacuerdo
+\item 2: En desacuerdo
+\item 3: De acuerdo
+\item 4: Totalmente de acuerdo\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Strongly disagree
+\item 2: Disagree
+\item 3: Agree
+\item 4: Strongly agree\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P17}} \\ 
+¿Qué tan seguido el profesor o profesora que enseña PERSONAL SOCIAL hace lo siguiente? & How often does the SOCIAL PERSONAL teacher do the following? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p17\_01: Nos pide recordar de memoria las fechas y los lugares en los que sucedieron los hechos
+\item p17\_02: Nos pide identificar las diversas causas y consecuencias de un hecho
+\item p17\_03: Nos pide aprender de memoria los hechos tal como los explicó
+\item p17\_04: Nos presenta diversas maneras de explicar un mismo hecho
+\item p17\_05: Nos dice que solo existe una verdadera versión de los hechos
+\item p17\_06: Nos pide utilizar información confiable al defender un punto de vista
+\item p17\_07: Nos dice que los personajes importantes son los que solucionan los problemas de la sociedad\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p17\_01: He/She asks us to memorize the dates and places where events happened
+\item p17\_02: He/She asks us to identify the various causes and consequences of an event
+\item p17\_03: He/She asks us to memorize the facts as explained
+\item p17\_04: He/She presents different ways of explaining the same event
+\item p17\_05: He/She says there is only one true version of events
+\item p17\_06: He/She asks us to use reliable information when defending a point of view
+\item p17\_07: He/She says important figures are the ones who solve society's problems\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Nunca o casi nunca
+\item 2: En algunas clases
+\item 3: En la mayoría de las clases
+\item 4: En todas o en casi todas las clases\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Never or almost never
+\item 2: In some classes
+\item 3: In most classes
+\item 4: In all or almost all classes\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P18}} \\ 
+¿Qué tan de acuerdo estás con las siguientes afirmaciones? & How much do you agree with the following statements? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p18\_01: Considero que todas las personas de la comunidad influyen sobre los hechos que ocurren en la sociedad
+\item p18\_02: Considero que las decisiones de los personajes importantes son las que determinan lo que ocurre en la sociedad
+\item p18\_03: Para comprender un hecho es necesario conocer las características de la época y del lugar en el que ocurre
+\item p18\_04: Algunas ideas y costumbres del pasado se mantienen hasta la actualidad
+\item p18\_05: Las ideas y costumbres de la actualidad son totalmente distintas a las del pasado
+\item p18\_06: Considero que un hecho puede tener varias causas
+\item p18\_07: Considero que un hecho puede tener varias consecuencias\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p18\_01: I believe everyone in the community influences the events that occur in society
+\item p18\_02: I believe the decisions of important figures determine what happens in society
+\item p18\_03: To understand an event it is necessary to know the characteristics of the time and place in which it occurs
+\item p18\_04: Some ideas and customs from the past remain to this day
+\item p18\_05: Today's ideas and customs are completely different from those of the past
+\item p18\_06: I believe an event can have several causes
+\item p18\_07: I believe an event can have several consequences\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Totalmente en desacuerdo
+\item 2: En desacuerdo
+\item 3: De acuerdo
+\item 4: Totalmente de acuerdo\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Strongly disagree
+\item 2: Disagree
+\item 3: Agree
+\item 4: Strongly agree\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P19}} \\ 
+¿Qué tan de acuerdo estás con las siguientes afirmaciones? & How much do you agree with the following statements? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p19\_01: Considero que para comprender un hecho es necesario utilizar información de diversas fuentes
+\item p19\_02: Considero que cualquier información es confiable, sin importar de donde proviene
+\item p19\_03: Las personas explican los hechos desde su punto de vista
+\item p19\_04: Un mismo hecho de la sociedad puede ser comprendido de distinta manera
+\item p19\_05: Existe una sola versión verdadera de los hechos que ocurren en la sociedad
+\item p19\_06: Para defender un punto de vista sobre algún hecho es necesario usar información confiable
+\item p19\_07: Los problemas sociales se pueden resolver de una sola manera
+\item p19\_08: Para solucionar los problemas de la sociedad se debe hacer lo mismo que los países desarrollados
+\item p19\_09: Todas las personas pueden contribuir a la solución de los problemas
+\item p19\_10: La solución a los problemas de la sociedad depende de los personajes importantes\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p19\_01: I believe that to understand an event it is necessary to use information from various sources
+\item p19\_02: I believe that any information is reliable regardless of where it comes from
+\item p19\_03: People explain events from their point of view
+\item p19\_04: The same event in society can be understood in different ways
+\item p19\_05: There is only one true version of the events that occur in society
+\item p19\_06: To defend a point of view about an event it is necessary to use reliable information
+\item p19\_07: Social problems can be solved in only one way
+\item p19\_08: To solve society's problems we must do the same as developed countries
+\item p19\_09: Everyone can contribute to solving problems
+\item p19\_10: The solution to society's problems depends on important figures\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Totalmente en desacuerdo
+\item 2: En desacuerdo
+\item 3: De acuerdo
+\item 4: Totalmente de acuerdo\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Strongly disagree
+\item 2: Disagree
+\item 3: Agree
+\item 4: Strongly agree\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P20}} \\ 
+Acerca de tu escuela, ¿qué tan de acuerdo estás con las siguientes afirmaciones? & About your school, how much do you agree with the following statements? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p20\_01: Prefiero faltar a la escuela
+\item p20\_02: Mi escuela es un lugar donde me siento solo
+\item p20\_03: Preferiría estudiar en otra escuela
+\item p20\_04: Siento que no pertenezco a esta escuela
+\item p20\_05: Me siento orgulloso de estar en esta escuela
+\item p20\_06: Mi escuela es un lugar donde me siento como un extraño
+\item p20\_07: Me siento seguro en el camino cuando voy de mi casa a la escuela
+\item p20\_08: Me siento seguro en los salones de clase de mi escuela
+\item p20\_09: Me siento seguro en otros lugares de la escuela (por ejemplo, patios, pasillos, baños, etc.)\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p20\_01: I prefer to skip school
+\item p20\_02: My school is a place where I feel lonely
+\item p20\_03: I would prefer to study at another school
+\item p20\_04: I feel that I do not belong at this school
+\item p20\_05: I feel proud to be at this school
+\item p20\_06: My school is a place where I feel like a stranger
+\item p20\_07: I feel safe on the way when I go from my home to school
+\item p20\_08: I feel safe in my school's classrooms
+\item p20\_09: I feel safe in other places at school (e.g., yards, hallways, bathrooms, etc.)\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Totalmente en desacuerdo
+\item 2: En desacuerdo
+\item 3: De acuerdo
+\item 4: Totalmente de acuerdo\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Strongly disagree
+\item 2: Disagree
+\item 3: Agree
+\item 4: Strongly agree\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P21}} \\ 
+¿Qué tan de acuerdo estas con las siguientes afirmaciones acerca de tus profesores? & How much do you agree with the following statements about your teachers? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p21\_01: Los profesores echan la culpa a los estudiantes por las cosas que pasan
+\item p21\_02: Los profesores pueden castigar a los estudiantes sin decirles la razón por la que se les está castigando
+\item p21\_03: Los profesores tienen demasiadas normas que no tienen sentido, pero debo obedecerlas
+\item p21\_04: En general, los profesores de esta escuela no son muy pacientes con los alumnos
+\item p21\_05: Los profesores dejan que los estudiantes les respondan de forma inadecuada o insulten\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p21\_01: Teachers blame students for things that happen
+\item p21\_02: Teachers can punish students without telling them the reason they are being punished
+\item p21\_03: Teachers have too many rules that do not make sense, but I must obey them
+\item p21\_04: In general, teachers at this school are not very patient with students
+\item p21\_05: Teachers allow students to respond to them inappropriately or insult them\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Totalmente en desacuerdo
+\item 2: En desacuerdo
+\item 3: De acuerdo
+\item 4: Totalmente de acuerdo\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Strongly disagree
+\item 2: Disagree
+\item 3: Agree
+\item 4: Strongly agree\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P22}} \\ 
+¿Qué tan de acuerdo estás con las siguientes afirmaciones sobre tu participación en las clases? & How much do you agree with the following statements about your participation in class? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p22\_01: Me parece importante participar en las clases para aprender
+\item p22\_02: Prefiero no participar en las clases para evitar errores y burlas de mis compañeros
+\item p22\_03: Pregunto en las clases cuando no comprendo algo
+\item p22\_04: Expreso mis opiniones en las clases aun cuando estas sean diferentes a las demás\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p22\_01: I think it is important to participate in class to learn
+\item p22\_02: I prefer not to participate in class to avoid mistakes and classmates' teasing
+\item p22\_03: I ask questions in class when I do not understand something
+\item p22\_04: I express my opinions in class even when they are different from others'\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Totalmente en desacuerdo
+\item 2: En desacuerdo
+\item 3: De acuerdo
+\item 4: Totalmente de acuerdo\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Strongly disagree
+\item 2: Disagree
+\item 3: Agree
+\item 4: Strongly agree\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P23}} \\ 
+Durante las clases, ¿qué tan seguido tus profesores hacen lo siguiente? & During classes, how often do your teachers do the following? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p23\_01: Nos motivan a expresar nuestras ideas y opiniones en clase
+\item p23\_02: Se molestan cuando nos equivocamos al participar en clase
+\item p23\_03: Nos hablan mucho y dejan poco espacio para que participemos
+\item p23\_04: Nos escuchan con interés cuando opinamos en clase
+\item p23\_05: Nos motivan a formular preguntas durante la clase
+\item p23\_06: Nos plantean actividades interesantes y entretenidas que motivan nuestra participación
+\item p23\_07: Nos piden que opinemos al final de la clase para no interrumpirlos
+\item p23\_08: Nos demuestran que prefieren la participación de los estudiantes más destacados\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p23\_01: They encourage us to express our ideas and opinions in class
+\item p23\_02: They get upset when we make mistakes while participating in class
+\item p23\_03: They talk a lot and leave little room for us to participate
+\item p23\_04: They listen with interest when we give our opinions in class
+\item p23\_05: They encourage us to ask questions during class
+\item p23\_06: They propose interesting and engaging activities that motivate our participation
+\item p23\_07: They ask us to share our opinions at the end of class so as not to interrupt
+\item p23\_08: They show that they prefer the participation of the top students\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Nunca o casi nunca
+\item 2: En algunas clases
+\item 3: En la mayoría de las clases
+\item 4: En todas o en casi todas las clases\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Never or almost never
+\item 2: In some classes
+\item 3: In most classes
+\item 4: In all or almost all classes\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P24}} \\ 
+Con respecto a tu experiencia escolar este año, ¿con qué frecuencia te sientes de la siguiente manera? & Regarding your school experience this year, how often do you feel the following way? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p24\_01: Siento que hay demasiadas tareas para la casa
+\item p24\_02: Siento que decepciono a mis padres cuando mis notas en los exámenes son malas
+\item p24\_03: Siento que decepciono a mi profesor cuando mis notas en los exámenes son bajas
+\item p24\_04: Siento que hay demasiadas tareas o actividades que hacer en la escuela
+\item p24\_05: Me preocupa que mis notas sean malas
+\item p24\_06: Siento que hay demasiados exámenes en la escuela
+\item p24\_07: Pienso que la nota es muy importante para mi futuro e incluso puede determinar toda mi vida
+\item p24\_08: Siento que en mi colegio me dejan mucha tarea para la casa\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p24\_01: I feel there is too much homework
+\item p24\_02: I feel I disappoint my parents when my test scores are bad
+\item p24\_03: I feel I disappoint my teacher when my test scores are low
+\item p24\_04: I feel there is too much homework or too many activities to do at school
+\item p24\_05: I worry that my grades are bad
+\item p24\_06: I feel there are too many tests at school
+\item p24\_07: I think grades are very important for my future and can even determine my whole life
+\item p24\_08: I feel my school gives me a lot of homework\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Nunca o casi nunca
+\item 2: Algunas veces
+\item 3: Muchas veces
+\item 4: Siempre o casi siempre\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Never or almost never
+\item 2: Sometimes
+\item 3: Often
+\item 4: Always or almost always\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P25}} \\ 
+Durante este año, ¿con qué frecuencia un PROFESOR(A) U OTRO ADULTO de tu colegio ha actuado de la siguiente manera? Piensa en situaciones que incluyan contacto cara a cara, mensajes de texto, WhatsApp, redes sociales o por otro medio por internet. & During this year, how often has a TEACHER OR ANOTHER ADULT at your school acted in the following way? Think of situations including face-to-face contact, text messages, WhatsApp, social media, or other internet means. \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p25\_01: Ha amenazado o intimidado a un estudiante
+\item p25\_02: Se ha burlado o ha insultado a un estudiante
+\item p25\_03: Ha castigado a un estudiante golpeándole con su mano u otra parte de su cuerpo (le ha dado un cocacho, un palmazo, una cachetada, una patada, etc.)
+\item p25\_04: Ha castigado a un estudiante golpeándole con un objeto (cuaderno, correa, regla, palo, etc.)
+\item p25\_05: Ha castigado a un estudiante humillándolo o haciéndolo sentir mal (gritándole, ridiculizándolo delante de sus compañeros)\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p25\_01: Has threatened or intimidated a student
+\item p25\_02: Has made fun of or insulted a student
+\item p25\_03: Has punished a student by hitting him/her with his/her hand or another part of the body (gave a knock, a slap, a smack, a kick, etc.)
+\item p25\_04: Has punished a student by hitting him/her with an object (notebook, belt, ruler, stick, etc.)
+\item p25\_05: Has punished a student by humiliating him/her or making him/her feel bad (yelling, ridiculing him/her in front of classmates)\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Nunca
+\item 2: Unas cuantas veces al año
+\item 3: Unas cuantas veces al mes
+\item 4: Una o más veces por semana\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Never
+\item 2: A few times a year
+\item 3: A few times a month
+\item 4: Once or more times per week\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P26}} \\ 
+Durante este año, ¿con qué frecuencia ALGUNOS COMPAÑEROS(AS) han actuado de la siguiente manera con otros(as) estudiantes? Piensa en situaciones que incluyan contacto cara a cara, mensajes de texto, WhatsApp, redes sociales o por otro medio por internet. & During this year, how often have SOME CLASSMATES acted in the following way toward other students? Think of situations including face-to-face contact, text messages, WhatsApp, social media, or other internet means. \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p26\_01: Han amenazado o intimidado a un estudiante
+\item p26\_02: Han golpeado o herido a un estudiante (jalándole el pelo, dándole cocachos, pateándolo, haciéndolo tropezar, empujándolo, etc.)
+\item p26\_03: Se han burlado o insultado a un estudiante
+\item p26\_04: Han quitado, escondido, robado o roto sus cosas a un estudiante
+\item p26\_05: Han difundido rumores o chismes sobre un estudiante
+\item p26\_06: Han gritado a un estudiante frente a otros\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p26\_01: Have threatened or intimidated a student
+\item p26\_02: Have hit or injured a student (pulling their hair, giving knocks, kicking, tripping, pushing, etc.)
+\item p26\_03: Have made fun of or insulted a student
+\item p26\_04: Have taken, hidden, stolen or broken a student's belongings
+\item p26\_05: Have spread rumors or gossip about a student
+\item p26\_06: Have shouted at a student in front of others\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: Nunca
+\item 2: Unas cuantas veces al año
+\item 3: Unas cuantas veces al mes
+\item 4: Una o más veces por semana\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: Never
+\item 2: A few times a year
+\item 3: A few times a month
+\item 4: Once or more times per week\end{itemize} \\
+\addlinespace[4pt]
+\multicolumn{2}{@{}l@{}}{\large\textbf{P27}} \\ 
+Cuando las situaciones mencionadas en las preguntas anteriores han sucedido en tu colegio, ¿le contaste y/o solicitaste ayuda a las siguientes personas? & When the situations mentioned in the previous questions happened at your school, did you tell and/or ask the following people for help? \\
+\textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p27\_01: Mi tutor(a)
+\item p27\_02: Otro profesor(a)
+\item p27\_03: Al director(a)
+\item p27\_04: Al auxiliar
+\item p27\_05: Al psicólogo(a) de la escuela
+\item p27\_06: Al personal administrativo, de limpieza o seguridad
+\item p27\_07: A un familiar
+\item p27\_08: A un amigo(a)\end{itemize} & \textbf{Sub-items}\par\begin{itemize}[leftmargin=*]\item p27\_01: My homeroom teacher
+\item p27\_02: Another teacher
+\item p27\_03: The principal
+\item p27\_04: The assistant
+\item p27\_05: The school psychologist
+\item p27\_06: Administrative, cleaning or security staff
+\item p27\_07: A family member
+\item p27\_08: A friend\end{itemize} \\
+\textbf{Opciones}\par\begin{itemize}[leftmargin=*]\item 1: No
+\item 2: Sí\end{itemize} & \textbf{Options}\par\begin{itemize}[leftmargin=*]\item 1: No
+\item 2: Yes\end{itemize} \\
+\addlinespace[4pt]
+\end{longtable}
+\end{document}
