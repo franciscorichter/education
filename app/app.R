@@ -707,6 +707,8 @@ ui <- fluidPage(
               column(5,
                 h5("Edges"),
                 DTOutput("gl_edges_table"),
+                h5("Edges into L/M"),
+                DTOutput("gl_edges_lm_table"),
                 h5("Summary"),
                 verbatimTextOutput("gl_summary")
               )
@@ -1184,44 +1186,24 @@ server <- function(input, output, session) {
     res <- gl_result()
     if (is.null(res)) { plot.new(); title("GL: no result yet. Click 'Run Graphical Lasso'."); return() }
     Theta <- res$Theta
-    node_names <- colnames(Theta)
-    # Group by top code if pattern present
+    edge_all <- res$edges
+    if (is.null(edge_all) || nrow(edge_all) == 0) { plot.new(); title("No edges selected by GL"); return() }
+    # Node groups from names
+    node_names <- unique(c(edge_all$from, edge_all$to))
     groups <- stringr::str_match(node_names, "^(p\\d{2})")[,2]
     groups[is.na(groups)] <- node_names[is.na(groups)]
     df_nodes <- data.frame(name = node_names, group = groups, stringsAsFactors = FALSE)
-    adj <- (abs(Theta) > .Machine$double.eps); diag(adj) <- FALSE
-    edges <- which(adj, arr.ind = TRUE)
-    if (nrow(edges) > 0) edges <- edges[edges[,1] < edges[,2], , drop = FALSE]
-    
-    # Extract weights properly using matrix indexing
-    if (nrow(edges) > 0) {
-      weights <- numeric(nrow(edges))
-      for (i in seq_len(nrow(edges))) {
-        weights[i] <- abs(Theta[edges[i, 1], edges[i, 2]])
-      }
-      df_edges <- data.frame(
-        from = node_names[edges[,1]],
-        to   = node_names[edges[,2]],
-        weight = weights,
-        stringsAsFactors = FALSE
-      )
-    } else {
-      df_edges <- data.frame(from = character(0), to = character(0), weight = numeric(0), stringsAsFactors = FALSE)
-    }
-    
-    if (nrow(df_edges) == 0) { plot.new(); title("No edges selected by GL"); return() }
-    # Limit edges to top weights for plotting to avoid overplotting
+    # Limit edges for plotting
     max_e <- if (is.null(input$gl_max_edges_plot)) 300 else as.integer(input$gl_max_edges_plot)
-    df_edges <- dplyr::arrange(df_edges, dplyr::desc(.data$weight))
+    df_edges <- edge_all[order(-edge_all$weight), , drop = FALSE]
     if (nrow(df_edges) > max_e) df_edges <- df_edges[seq_len(max_e), , drop = FALSE]
-    # Keep only nodes that appear in the selected edge set for plotting
-    used_nodes <- sort(unique(c(df_edges$from, df_edges$to)))
-    df_nodes_plot <- dplyr::filter(df_nodes, .data$name %in% used_nodes)
-    G <- igraph::graph_from_data_frame(df_edges, directed = FALSE, vertices = df_nodes_plot)
-    base_pal <- RColorBrewer::brewer.pal(8, "Set2")
-    palette <- grDevices::colorRampPalette(base_pal)(max(8, length(unique(df_nodes_plot$group))))
-    col_map <- setNames(rep(palette, length.out = length(unique(df_nodes_plot$group))), sort(unique(df_nodes_plot$group)))
-    V(G)$color <- col_map[V(G)$group]
+    # Graph
+    G <- igraph::graph_from_data_frame(df_edges, directed = FALSE, vertices = df_nodes)
+    # Colors: default orange; L red; M blue
+    vcols <- rep("#f59e0b", igraph::vcount(G))
+    vn <- igraph::V(G)$name
+    vcols[vn == "L"] <- "#e11d48"
+    vcols[vn == "M"] <- "#2563eb"
     E(G)$weight <- df_edges$weight
     set.seed(123)
     coords <- igraph::layout_with_fr(G)
@@ -1230,10 +1212,10 @@ server <- function(input, output, session) {
            layout = coords,
            vertex.size = 10,
            vertex.label.cex = 0.7,
+           vertex.color = vcols,
            edge.width = scales::rescale(E(G)$weight, to = c(0.5, 3)),
            edge.color = rgb(0.2,0.2,0.2,0.3),
            main = sprintf("Graphical Lasso (rho=%.2f) — plotted edges: %d", ifelse(is.null(input$gl_lambda), 0.10, input$gl_lambda), igraph::ecount(G)))
-      legend("topleft", legend = names(col_map), col = unname(col_map), pch = 16, bty = "n", ncol = 2, title = "Group")
     }, silent = TRUE)
   })
 
@@ -1294,6 +1276,16 @@ server <- function(input, output, session) {
     df <- df[order(-df$weight), ]
     
     datatable(df, options = list(pageLength = 10, scrollX = TRUE), rownames = FALSE)
+  })
+
+  output$gl_edges_lm_table <- renderDT({
+    res <- gl_result(); if (is.null(res)) return(datatable(data.frame()))
+    df <- res$edges
+    if (is.null(df) || nrow(df) == 0) return(datatable(data.frame(Info = "No edges"), rownames = FALSE))
+    lm_df <- subset(df, from %in% c("L","M") | to %in% c("L","M"))
+    if (nrow(lm_df) == 0) return(datatable(data.frame(Info = "No L/M edges"), rownames = FALSE))
+    lm_df <- lm_df[order(-lm_df$weight), , drop = FALSE]
+    datatable(lm_df, options = list(pageLength = 10, scrollX = TRUE), rownames = FALSE)
   })
 
   # Información de archivos

@@ -79,8 +79,13 @@ if (length(vars) < 2) stop("<2 candidate variables found")
 
 cat("Candidate variables:", length(vars), "\n")
 
-# Subset and preprocess
+# Subset and preprocess; append L/M when available and aligned
 X <- dplyr::select(X, dplyr::all_of(vars))
+fd <- q$full_data
+if (!is.null(fd) && nrow(fd) == nrow(X)) {
+  if ("medida500_L" %in% names(fd)) X$L <- suppressWarnings(as.numeric(fd$medida500_L))
+  if ("medida500_M" %in% names(fd)) X$M <- suppressWarnings(as.numeric(fd$medida500_M))
+}
 X <- X[rowSums(is.na(X)) < ncol(X), , drop = FALSE]
 if (nrow(X) < 10) stop("Not enough rows after NA filtering: ", nrow(X))
 X[] <- lapply(X, function(col) suppressWarnings(as.numeric(col)))
@@ -100,18 +105,20 @@ S <- stats::cov(X)
 cat("Cov computed. Running glasso with rho=", rho, "...\n", sep = "")
 fit <- glasso::glasso(S, rho = rho)
 Theta <- fit$wi
+# Ensure Theta has column/row names
+if (is.null(colnames(Theta))) colnames(Theta) <- colnames(X)
+if (is.null(rownames(Theta))) rownames(Theta) <- colnames(X)
 
-# Adjacency and edges
-adj <- (abs(Theta) > .Machine$double.eps)
-diag(adj) <- FALSE
-idx <- which(adj, arr.ind = TRUE)
-if (nrow(idx) > 0) idx <- idx[idx[,1] < idx[,2], , drop = FALSE]
-
-weights <- if (nrow(idx) > 0) {
-  abs(Theta[cbind(idx[,1], idx[,2])])
-} else numeric(0)
+# Adjacency and edges (use upper triangle for unique undirected edges)
+mask <- (abs(Theta) > .Machine$double.eps) & upper.tri(Theta)
+idx <- which(mask, arr.ind = TRUE)
 
 edge_df <- if (nrow(idx) > 0) {
+  # Extract weights using proper 2D matrix indexing
+  weights <- numeric(nrow(idx))
+  for (i in seq_len(nrow(idx))) {
+    weights[i] <- abs(Theta[idx[i, 1], idx[i, 2]])
+  }
   data.frame(
     from = colnames(Theta)[idx[,1]],
     to   = colnames(Theta)[idx[,2]],
@@ -128,7 +135,6 @@ if (nrow(edge_df) > 0) {
 }
 
 # Plot a subset
-if (nrow(edge_df) > 0) {
   ord <- order(-edge_df$weight)
   edge_plot <- edge_df[ord, , drop = FALSE]
   if (nrow(edge_plot) > max_edges_plot) edge_plot <- edge_plot[seq_len(max_edges_plot), , drop = FALSE]
@@ -142,13 +148,27 @@ if (nrow(edge_df) > 0) {
   out_png <- file.path(outputs_dir, sprintf("glasso_%s_rho%0.2f_edges%d_%s.png", safe_q, rho, nrow(edge_plot), ts))
   png(out_png, width = 1200, height = 900)
   set.seed(123)
-  plot(G, layout = igraph::layout_with_fr(G), vertex.size = 6, vertex.label = NA, edge.width = scales::rescale(E(G)$weight, to = c(0.2, 2)))
+  vcols <- rep("#f59e0b", igraph::vcount(G))  # orange default
+  vn <- igraph::V(G)$name
+  vcols[vn == "L"] <- "#e11d48"  # red for L
+  vcols[vn == "M"] <- "#2563eb"  # blue for M
+  plot(G, layout = igraph::layout_with_fr(G), vertex.size = 6, vertex.label = NA, vertex.color = vcols,
+       edge.width = scales::rescale(E(G)$weight, to = c(0.2, 2)))
   dev.off()
   cat("Saved plot to:", out_png, "\n")
   # Save full edges CSV as well
   out_csv <- file.path(outputs_dir, sprintf("glasso_edges_%s_rho%0.2f_%s.csv", safe_q, rho, ts))
   utils::write.csv(edge_df[ord, , drop = FALSE], out_csv, row.names = FALSE)
   cat("Saved edges to:", out_csv, "\n")
+  # Save L/M incident edges
+  if (any(edge_df$from %in% c("L","M") | edge_df$to %in% c("L","M"))) {
+    lm_edges <- subset(edge_df, from %in% c("L","M") | to %in% c("L","M"))
+    out_csv2 <- file.path(outputs_dir, sprintf("glasso_edges_LM_%s_rho%0.2f_%s.csv", safe_q, rho, ts))
+    utils::write.csv(lm_edges[order(-lm_edges$weight), ], out_csv2, row.names = FALSE)
+    cat("Saved L/M incident edges to:", out_csv2, "\n")
+  } else {
+    cat("No L/M edges present in the selected model.\n")
+  }
 }
 
 # Sanity checks
