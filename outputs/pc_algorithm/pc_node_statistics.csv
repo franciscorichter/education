@@ -1,0 +1,4 @@
+variable,degree,in_degree,out_degree,betweenness,closeness
+socioemotional_learning,2,2,0,0,NA
+academic_lang,2,1,1,0,1
+academic_math,2,0,2,0,1
