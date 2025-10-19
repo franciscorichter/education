@@ -28,7 +28,7 @@ scripts <- c(
   "01_load_data.R",
   "02_preprocess.R",
   "03_eda.R",
-  "04_pca.R",
+  "04_fci.R",
   "05_pc_algorithm.R",
   "06_graphical_lasso.R"
 )
